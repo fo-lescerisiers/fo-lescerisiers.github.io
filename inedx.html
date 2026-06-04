@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FO CSE Les Cerisiers</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f5;color:#212121}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px 20px;margin-bottom:12px}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.btn{cursor:pointer;border:none;border-radius:6px;padding:8px 16px;font-size:13px;font-family:inherit}
+.btn-r{background:#D32F2F;color:#fff}
+.ef{border:1.5px dashed #f44336!important;background:#ffebee!important;border-radius:4px!important;outline:none!important;font-family:inherit!important;padding:3px 6px!important}
+.ef-ta{border:1.5px dashed #f44336!important;background:#ffebee!important;border-radius:4px!important;outline:none!important;font-family:inherit!important;resize:vertical!important;width:100%!important;padding:4px 6px!important;display:block!important}
+nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.add-b{display:flex;align-items:center;gap:6px;padding:8px 16px;background:#E8F5E9;color:#388E3C;border:1px dashed #388E3C;border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:12px;width:100%;font-family:inherit}
+.del-b{background:#ffebee;border:1px solid #D32F2F;border-radius:6px;cursor:pointer;color:#D32F2F;padding:3px 8px;font-size:12px;font-family:inherit}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999}
+#toast{position:fixed;bottom:24px;right:24px;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this.files[0])">
+<div id="b-alert"></div>
+<div id="b-edit"></div>
+
+<header style="background:#D32F2F">
+  <div style="max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <svg width="64" height="64" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="49" fill="#D32F2F"/>
+        <defs>
+          <path id="tc" d="M18,42 A34,34 0 0,1 82,42"/>
+          <path id="bc" d="M16,60 A36,36 0 0,0 84,60"/>
+        </defs>
+        <text fill="black" font-size="9.5" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#tc" startOffset="50%" text-anchor="middle">v&#233;t&#233;rinaires et ASV</textPath></text>
+        <text x="50" y="62" text-anchor="middle" fill="white" font-size="34" font-weight="900" font-style="italic" font-family="Arial Black,sans-serif">FO</text>
+        <text fill="black" font-size="10" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#bc" startOffset="50%" text-anchor="middle">les cerisiers</textPath></text>
+      </svg>
+      <div>
+        <div style="color:#fff;font-size:20px;font-weight:900">FO CSE</div>
+        <div style="color:rgba(255,255,255,.85);font-size:12px">Les Cerisiers &middot; Groupe Evidensia</div>
+      </div>
+    </div>
+    <svg width="180" height="60" viewBox="-10 0 220 80">
+      <text x="100" y="30" text-anchor="middle" fill="white" font-size="26" font-weight="900" font-family="Arial Black,sans-serif">LES CERISIERS</text>
+      <path d="M 15 42 Q 100 60 185 42" fill="none" stroke="#a5d6a7" stroke-width="2.5"/>
+      <text x="100" y="68" text-anchor="middle" fill="#a5d6a7" font-size="22" font-weight="bold" font-family="Arial,sans-serif">CSE</text>
+    </svg>
+    <div id="sub-zone">
+      <div style="display:flex;gap:6px">
+        <input id="sub-in" type="email" placeholder="Votre email..." style="padding:7px 12px;border-radius:6px;border:none;font-size:12px;width:160px">
+        <button onclick="doSub()" style="padding:7px 12px;background:#fff;color:#D32F2F;border:none;border-radius:6px;font-weight:500;cursor:pointer;font-size:12px">S'abonner</button>
+      </div>
+    </div>
+  </div>
+  <nav style="background:#B71C1C">
+    <div id="tabs-nav" style="display:flex;max-width:1100px;margin:0 auto;padding:0 8px"></div>
+  </nav>
+</header>
+
+<main style="max-width:1100px;margin:0 auto;padding:20px 16px">
+  <div id="tab-content"></div>
+</main>
+
+<footer style="background:#212121;padding:20px 16px;margin-top:32px">
+  <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <div style="flex:1;text-align:center" id="footer-txt"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="document.getElementById('modal-guide').style.display='block'" style="padding:8px 14px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">&#128218; Guide</button>
+      <button id="admin-btn" onclick="toggleAdmin()" style="padding:8px 16px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">&#9998; Administration</button>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL UTILISATEURS -->
+<div id="modal-users" class="modal-bg" style="display:none">
+  <div style="background:#fff;border-radius:12px;padding:28px 32px;width:90%;max-width:460px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:16px;font-weight:600">&#128101; Gestion des utilisateurs</div>
+      <button onclick="document.getElementById('modal-users').style.display='none'" style="background:#f5f5f5;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px">&#10005;</button>
+    </div>
+    <div style="background:#E8F5E9;border-radius:10px;padding:16px;margin-bottom:16px">
+      <div style="font-weight:600;font-size:14px;color:#2E7D32;margin-bottom:12px">&#10133; Ajouter un &eacute;lu</div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Email</label>
+        <input id="nu-email" type="email" placeholder="prenom.nom@example.fr" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #c8e6c9;font-size:13px">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Mot de passe (6 caract&egrave;res min.)</label>
+        <input id="nu-pwd" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #c8e6c9;font-size:13px">
+      </div>
+      <div id="nu-msg" style="display:none;font-size:12px;padding:7px 10px;border-radius:6px;margin-bottom:10px"></div>
+      <button id="nu-btn" onclick="addUser()" class="btn btn-r" style="width:100%">Cr&eacute;er le compte</button>
+    </div>
+    <div style="background:#FFF3E0;border-radius:10px;padding:14px">
+      <div style="font-weight:600;font-size:13px;color:#E65100;margin-bottom:8px">&#128274; Supprimer un utilisateur</div>
+      <div style="font-size:12px;color:#555;line-height:1.7">
+        <a href="https://console.firebase.google.com" target="_blank" style="color:#D32F2F;font-weight:600">console.firebase.google.com</a>
+        &rarr; Authentication &rarr; Utilisateurs &rarr; &#8942; &rarr; Supprimer
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLOUD -->
+<div id="modal-cloud" class="modal-bg" style="display:none">
+  <div style="background:#fff;border-radius:12px;padding:28px 32px;width:90%;max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:16px;font-weight:600">&#9729; Synchronisation cloud</div>
+      <button onclick="document.getElementById('modal-cloud').style.display='none'" style="background:#f5f5f5;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px">&#10005;</button>
+    </div>
+    <div style="background:#E8F5E9;border-radius:8px;padding:14px;font-size:13px;line-height:1.9;color:#2E7D32;margin-bottom:18px">
+      <strong>Configuration en 3 &eacute;tapes :</strong><br>
+      <span style="color:#424242">
+      &#9312; <a href="https://console.firebase.google.com" target="_blank" style="color:#D32F2F;font-weight:600">console.firebase.google.com</a><br>
+      &#9313; Realtime Database &rarr; Cr&eacute;er &rarr; Mode test<br>
+      &#9314; Copiez l'URL de la base
+      </span>
+    </div>
+    <div id="cloud-ok-info" style="display:none;background:#E3F2FD;border-radius:8px;padding:12px;font-size:13px;color:#1565C0;margin-bottom:16px">
+      &#9989; Cloud configur&eacute;. M&ecirc;me URL sur un autre appareil pour synchroniser.
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">URL Firebase</label>
+      <input id="cloud-url-in" type="text" placeholder="https://mon-projet-default-rtdb.firebaseio.com" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px">
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">Cl&eacute; API Web</label>
+      <input id="cloud-apikey-in" type="text" placeholder="AIzaSy..." style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="setupCloud()" class="btn btn-r" style="flex:1">Connecter</button>
+      <button onclick="document.getElementById('modal-cloud').style.display='none'" style="padding:8px 16px;background:#f5f5f5;color:#555;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Annuler</button>
+    </div>
+    <div id="cloud-msg" style="margin-top:12px;font-size:13px;display:none;padding:8px 12px;border-radius:6px"></div>
+  </div>
+</div>
+
+<!-- MODAL GUIDE -->
+<div id="modal-guide" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:998;overflow-y:auto;padding:20px">
+  <div style="background:#fff;border-radius:12px;max-width:680px;margin:0 auto;padding:28px 32px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <div style="font-size:18px;font-weight:700;color:#D32F2F">&#128218; Guide d'utilisation</div>
+      <button onclick="document.getElementById('modal-guide').style.display='none'" style="background:#f5f5f5;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px">&#10005;</button>
+    </div>
+    <div style="background:#FFEBEE;border-left:4px solid #D32F2F;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px;color:#B71C1C;margin-bottom:8px">&#9998; 1. Modifier le contenu</div>
+      <div style="font-size:13px;line-height:1.8">Bas de page &rarr; <strong>Administration</strong> &rarr; email + mot de passe Firebase<br>Textes encadr&eacute;s en rouge = modifiables. <strong style="color:#388E3C">+</strong> ajouter, <strong style="color:#D32F2F">&#10005;</strong> supprimer.</div>
+    </div>
+    <div style="background:#E8F5E9;border-left:4px solid #388E3C;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px;color:#2E7D32;margin-bottom:8px">&#9729; 2. Sync cloud</div>
+      <div style="font-size:13px;line-height:1.8">Mode &eacute;dition &rarr; <strong>&#9729; Sync cloud</strong> &rarr; URL Firebase + Cl&eacute; API &rarr; Connecter.<br>Sauvegarde auto sur tous les appareils.</div>
+    </div>
+    <div style="background:#E3F2FD;border-left:4px solid #1565C0;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px;color:#1565C0;margin-bottom:8px">&#128247; 3. Image</div>
+      <div style="font-size:13px;line-height:1.8"><a href="https://imgur.com" target="_blank" style="color:#1565C0;font-weight:600">imgur.com</a> &rarr; uploader &rarr; clic droit &rarr; Copier l'adresse &rarr; coller dans le champ Image.</div>
+    </div>
+    <div style="background:#FFF3E0;border-left:4px solid #E65100;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px;color:#E65100;margin-bottom:8px">&#127909; 4. Vid&eacute;o YouTube</div>
+      <div style="font-size:13px;line-height:1.8">YouTube &rarr; Partager &rarr; Copier le lien &rarr; coller dans le champ Vid&eacute;o.</div>
+    </div>
+    <div style="background:#F3E5F5;border-left:4px solid #6A1B9A;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:20px">
+      <div style="font-weight:700;font-size:14px;color:#6A1B9A;margin-bottom:8px">&#128196; 5. Document PDF</div>
+      <div style="font-size:13px;line-height:1.8"><a href="https://drive.google.com" target="_blank" style="color:#6A1B9A;font-weight:600">Google Drive</a> &rarr; lien de partage public &rarr; coller dans le champ Lien.</div>
+    </div>
+    <div style="text-align:center"><button onclick="document.getElementById('modal-guide').style.display='none'" class="btn btn-r" style="padding:10px 32px">Fermer</button></div>
+  </div>
+</div>
+
+<!-- MODAL ADMIN -->
+<div id="modal-admin" class="modal-bg" style="display:none">
+  <div style="background:#fff;border-radius:12px;padding:28px 32px;min-width:320px">
+    <div style="font-size:16px;font-weight:500;margin-bottom:6px">&#128272; Administration</div>
+    <div id="adm-subtitle" style="font-size:12px;color:#757575;margin-bottom:16px">Connectez-vous avec vos identifiants Firebase</div>
+    <div id="adm-email-zone" style="margin-bottom:10px">
+      <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Email</label>
+      <input id="adm-email" type="email" placeholder="votre@email.com" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px" onkeydown="if(event.key==='Enter')chkAdmin()">
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Mot de passe</label>
+      <input id="adm-pwd" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px" onkeydown="if(event.key==='Enter')chkAdmin()">
+    </div>
+    <div id="adm-err" style="display:none;color:#D32F2F;font-size:12px;margin-bottom:8px;padding:6px 10px;background:#FFEBEE;border-radius:6px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="adm-btn" onclick="chkAdmin()" class="btn btn-r" style="flex:1">Se connecter</button>
+      <button onclick="closeAdmin()" style="padding:8px 16px;background:#f5f5f5;color:#757575;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Annuler</button>
+    </div>
+    <div id="adm-legacy-note" style="display:none;font-size:11px;color:#9E9E9E;margin-top:10px;text-align:center">Mode local : mot de passe fo2026</div>
+  </div>
+</div>
+
+<script>
+var R='#D32F2F', DR='#B71C1C', LR='#FFEBEE', G='#388E3C', LG='#E8F5E9';
+var editMode = false;
+var currentTab = 'accueil';
+var subbed = false;
+var contactSent = false;
+var cf = {nom:'', email:'', elu:'', sujet:'', msg:''};
+var nlMode = false;
+var nlForm = {titre:'', contenu:''};
+var nlSent = false;
+var sdMode = false;
+var sdForm = {titre:'', q1:'', q2:'', q3:''};
+var sdSent = false;
+var docFilter = 'Tous';
+var openInfo = null;
+var openDocs = {};
+var chatLoading = false;
+var apiKey = '';
+var chatMsgs = [{role:'assistant', content:'Bonjour ! Je suis l\u2019assistant FO CSE Les Cerisiers. Posez-moi vos questions sur vos droits, le CSE ou toute situation au travail.'}];
+var footerText = 'FO CSE Les Cerisiers \u2014 Groupe Evidensia \u00b7 V\u00e9t\u00e9rinaires & ASV';
+var footerEmail = 'fo.cerisiers@gmail.com';
+var fbUrl = localStorage.getItem('fo-fb-url') || '';
+var fbApiKey = localStorage.getItem('fo-fb-apikey') || '';
+var fbToken = '';
+var fbTokenExp = 0;
+var saveTimer, cloudTimer;
+
+// ——— DATA ———
+var news = [
+  {id:1, date:'28 mai 2026', cat:'Groupe', title:'Evidensia annonce une r\u00e9organisation', content:'Le groupe Evidensia a communiqu\u00e9 sur une r\u00e9organisation interne. FO suit de pr\u00e8s ce dossier.', imageUrl:'', videoUrl:'', linkUrl:'', linkLabel:'En savoir plus'},
+  {id:2, date:'20 mai 2026', cat:'CSE', title:'R\u00e9sultats du CSE ordinaire de mai', content:'Lors du CSE du 19 mai, plusieurs points sur les conditions de travail ont \u00e9t\u00e9 abord\u00e9s.', imageUrl:'', videoUrl:'', linkUrl:'', linkLabel:'En savoir plus'},
+  {id:3, date:'12 mai 2026', cat:'Accord', title:'Accord cong\u00e9s sp\u00e9ciaux sign\u00e9 par FO', content:'FO a obtenu l\u2019extension des cong\u00e9s pour \u00e9v\u00e9nements familiaux.', imageUrl:'', videoUrl:'', linkUrl:'', linkLabel:'En savoir plus'},
+  {id:4, date:'5 mai 2026', cat:'Enqu\u00eate', title:'Enqu\u00eate sur la charge de travail des ASV', content:'FO lance une enqu\u00eate officielle sur la charge de travail des ASV.', imageUrl:'', videoUrl:'', linkUrl:'', linkLabel:'En savoir plus'}
+];
+var actions = [
+  {id:1, status:'en cours', title:'NAO 2026 \u2014 Augmentation salariale', desc:'FO porte une revendication de +5% pour tous les salari\u00e9s.', date:'Depuis mars 2026'},
+  {id:2, status:'victoire', title:'Prime de nuit revaloris\u00e9e +15%', desc:'Apr\u00e8s 3 mois de n\u00e9gociation FO a obtenu une revalorisation.', date:'Avril 2026'},
+  {id:3, status:'en cours', title:'Dossier conditions de travail ASV', desc:'Enqu\u00eate en cours sur la charge de travail.', date:'Depuis mai 2026'},
+  {id:4, status:'victoire', title:'Tickets restaurant \u00e9tendus', desc:'Extension des tickets restaurant aux temps partiels d\u00e8s 20h/semaine.', date:'Janvier 2026'}
+];
+var alerts = [
+  {id:1, level:'danger', title:'Alerte danger grave \u2014 Clinique Nord', date:'26 mai 2026', desc:'Un droit d\u2019alerte a \u00e9t\u00e9 d\u00e9clench\u00e9. L\u2019inspection du travail a \u00e9t\u00e9 saisie.'},
+  {id:2, level:'warning', title:'Alerte \u00e9conomique \u2014 Rumeurs de cession', date:'15 mai 2026', desc:'FO exige la convocation d\u2019un CSE extraordinaire.'}
+];
+var elus = [
+  {id:1, initials:'MD', name:'Marie Dupont', role:'D\u00e9l\u00e9gu\u00e9e Syndicale FO', domain:'N\u00e9gociations, NAO, salaires', email:'marie.dupont@fo-cerisiers.fr', phone:'06 12 34 56 78'},
+  {id:2, initials:'PM', name:'Pierre Martin', role:'\u00c9lu CSE Titulaire', domain:'Conditions de travail, CSSCT', email:'pierre.martin@fo-cerisiers.fr', phone:'06 98 76 54 32'},
+  {id:3, initials:'SL', name:'Sophie Leblanc', role:'\u00c9lue CSE Titulaire', domain:'Formation, \u00e9galit\u00e9 professionnelle', email:'sophie.leblanc@fo-cerisiers.fr', phone:'06 11 22 33 44'}
+];
+var docs = [
+  {id:1, cat:'PV CSE', title:'PV CSE \u2014 Mai 2026', date:'22 mai 2026', content:'', imageUrl:'', linkUrl:'', linkLabel:'T\u00e9l\u00e9charger'},
+  {id:2, cat:'Tracts FO', title:'Tract NAO 2026', date:'10 mars 2026', content:'', imageUrl:'', linkUrl:'', linkLabel:'T\u00e9l\u00e9charger'},
+  {id:3, cat:'Accords', title:'Accord cong\u00e9s sp\u00e9ciaux 2026', date:'12 mai 2026', content:'', imageUrl:'', linkUrl:'', linkLabel:'T\u00e9l\u00e9charger'},
+  {id:4, cat:'Guides', title:'Guide du salari\u00e9 \u2014 Vos droits', date:'Janvier 2026', content:'', imageUrl:'', linkUrl:'', linkLabel:'T\u00e9l\u00e9charger'}
+];
+var agenda = [
+  {id:1, type:'NAO', date:'10 juin 2026', title:'NAO \u2014 2\u00e8me s\u00e9ance', lieu:'Salle RH'},
+  {id:2, type:'CSE', date:'17 juin 2026', title:'CSE Ordinaire \u2014 Juin', lieu:'Si\u00e8ge Les Cerisiers'},
+  {id:3, type:'AG FO', date:'25 juin 2026', title:'Assembl\u00e9e g\u00e9n\u00e9rale FO', lieu:'Salle du personnel'},
+  {id:4, type:'CSSCT', date:'1 juil 2026', title:'R\u00e9union CSSCT', lieu:'Visio-conf\u00e9rence'}
+];
+var infos = [
+  {id:1, title:'Cong\u00e9s et absences', items:['Cong\u00e9s pay\u00e9s : 2,5 jours/mois', 'RTT selon accord', 'Cong\u00e9s familiaux', 'Cong\u00e9 maternit\u00e9 / paternit\u00e9']},
+  {id:2, title:'Salaires et primes', items:['Grille salariale consultable', 'Prime de nuit revaloris\u00e9e (2026)', '13\u00e8me mois selon anciennet\u00e9', 'Tickets restaurant (d\u00e8s 20h/semaine)']},
+  {id:3, title:'Conditions de travail', items:['Droit d\u2019alerte en cas de danger', 'Saisine de la CSSCT', 'Registre des accidents du travail', 'Droit \u00e0 la d\u00e9connexion']},
+  {id:4, title:'Repr\u00e9sentation syndicale', items:['Droit de se syndiquer librement', 'Protection des \u00e9lus', 'Heures de d\u00e9l\u00e9gation', 'Affichage syndical autoris\u00e9']}
+];
+var sondages = [
+  {id:1, title:'Satisfaction conditions de travail 2026', status:'actif', reponses:47, date:'20 mai 2026'},
+  {id:2, title:'Priorit\u00e9s NAO \u2014 Vos attentes', status:'clos', reponses:89, date:'1 mars 2026'}
+];
+var newsletters = [
+  {id:1, title:'Newsletter FO \u2014 Mai 2026', date:'25 mai 2026', dest:134, ouv:98},
+  {id:2, title:'Sp\u00e9cial NAO 2026', date:'15 mars 2026', dest:134, ouv:112}
+];
+
+// ——— TABS ———
+var TABS = [
+  {id:'accueil', label:'Accueil'},
+  {id:'alertes', label:'Alertes'},
+  {id:'actions', label:'Actions FO'},
+  {id:'contact', label:'Contact \u00e9lus'},
+  {id:'infos', label:'Infos g\u00e9n\u00e9rales'},
+  {id:'documents', label:'Documents'},
+  {id:'agenda', label:'Agenda'},
+  {id:'newsletter', label:'Newsletter'},
+  {id:'sondages', label:'Sondages'},
+  {id:'chatbot', label:'Chatbot FO'}
+];
+
+// ——— HELPERS ———
+function nid() { return Date.now() + Math.random(); }
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escH(s) { return String(s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function bdg(t, c) { return '<span class="badge" style="background:' + c + '">' + esc(t) + '</span>'; }
+function ytId(url) {
+  if (!url) return null;
+  var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  return m ? m[1] : null;
+}
+function inp(v, cb, w) {
+  w = w || '100%';
+  if (!editMode) return '<span>' + esc(v) + '</span>';
+  return '<input class="ef" value="' + esc(v) + '" style="width:' + w + '" oninput="' + cb + '">';
+}
+function txta(v, cb) {
+  if (!editMode) return v ? '<div style="font-size:13px;color:#424242;line-height:1.7;white-space:pre-wrap">' + esc(v) + '</div>' : '';
+  return '<textarea class="ef-ta" rows="4" oninput="' + cb + '">' + esc(v) + '</textarea>';
+}
+function addB(fn, lbl) {
+  if (!editMode) return '';
+  return '<button class="add-b" onclick="' + fn + ';saveToStorage()">+ ' + lbl + '</button>';
+}
+function delB(fn) {
+  if (!editMode) return '';
+  return '<button class="del-b" onclick="' + fn + ';saveToStorage()">&#10005;</button>';
+}
+
+// ——— STORAGE ———
+function allData() {
+  return {news:news, actions:actions, alerts:alerts, elus:elus, docs:docs, agenda:agenda, infos:infos, sondages:sondages, newsletters:newsletters, footerText:footerText, footerEmail:footerEmail};
+}
+function applyData(d) {
+  if (d.news && d.news.length) news = d.news;
+  if (d.actions && d.actions.length) actions = d.actions;
+  if (d.alerts) alerts = d.alerts;
+  if (d.elus && d.elus.length) elus = d.elus;
+  if (d.docs && d.docs.length) docs = d.docs;
+  if (d.agenda && d.agenda.length) agenda = d.agenda;
+  if (d.infos && d.infos.length) infos = d.infos;
+  if (d.sondages && d.sondages.length) sondages = d.sondages;
+  if (d.newsletters && d.newsletters.length) newsletters = d.newsletters;
+  if (d.footerText) footerText = d.footerText;
+  if (d.footerEmail) footerEmail = d.footerEmail;
+}
+function showToast(msg, color) {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.background = color || '#2E7D32';
+  t.style.display = 'block';
+  clearTimeout(t._h);
+  t._h = setTimeout(function() { t.style.display = 'none'; }, 2500);
+}
+function setCldDot(s) {
+  var el = document.getElementById('cloud-dot');
+  if (!el) return;
+  var c = {ok:'#43A047', sync:'#FF6F00', err:'#D32F2F', off:'#9E9E9E'};
+  el.style.background = c[s] || c.off;
+}
+function saveLocalOnly() {
+  try { localStorage.setItem('fo-cerisiers', JSON.stringify(allData())); } catch(e) {}
+}
+function saveToStorage() {
+  saveLocalOnly();
+  showToast('\u2713 Sauvegard\u00e9');
+  if (fbUrl) {
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(cloudSave, 1500);
+  }
+}
+function loadFromStorage() {
+  try {
+    var raw = localStorage.getItem('fo-cerisiers');
+    if (raw) applyData(JSON.parse(raw));
+  } catch(e) {}
+}
+document.addEventListener('input', function() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToStorage, 600);
+});
+
+// ——— FIREBASE AUTH ———
+async function firebaseLogin(email, pwd) {
+  if (!fbApiKey) return {ok:false, msg:'Cl\u00e9 API non configur\u00e9e.'};
+  try {
+    var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + fbApiKey, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email:email, password:pwd, returnSecureToken:true})
+    });
+    var d = await r.json();
+    if (d.idToken) {
+      fbToken = d.idToken;
+      fbTokenExp = Date.now() + 3500000;
+      return {ok:true};
+    }
+    var msgs = {'EMAIL_NOT_FOUND':'Email introuvable', 'INVALID_PASSWORD':'Mot de passe incorrect', 'INVALID_LOGIN_CREDENTIALS':'Identifiants incorrects', 'USER_DISABLED':'Compte d\u00e9sactiv\u00e9'};
+    return {ok:false, msg: msgs[(d.error && d.error.message)] || 'Identifiants incorrects'};
+  } catch(e) {
+    return {ok:false, msg:'Erreur r\u00e9seau'};
+  }
+}
+
+// ——— CLOUD SYNC ———
+async function cloudSave() {
+  if (!fbUrl) return;
+  if (!fbToken || Date.now() > fbTokenExp) {
+    showToast('\u26a0\ufe0f Session expir\u00e9e, reconnectez-vous', '#F57F17');
+    setCldDot('err');
+    return;
+  }
+  setCldDot('sync');
+  try {
+    var r = await fetch(fbUrl + '/fo-cerisiers.json?auth=' + fbToken, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(allData())
+    });
+    if (r.ok) {
+      setCldDot('ok');
+      showToast('\u2601\ufe0f Synchronis\u00e9');
+    } else {
+      setCldDot('err');
+    }
+  } catch(e) {
+    setCldDot('err');
+  }
+}
+async function cloudLoad() {
+  if (!fbUrl) return false;
+  setCldDot('sync');
+  try {
+    var r = await fetch(fbUrl + '/fo-cerisiers.json');
+    if (!r.ok) { setCldDot('err'); return false; }
+    var d = await r.json();
+    if (d && typeof d === 'object' && d.news) {
+      applyData(d);
+      saveLocalOnly();
+      setCldDot('ok');
+      return true;
+    }
+  } catch(e) {}
+  setCldDot('err');
+  return false;
+}
+async function setupCloud() {
+  var url = (document.getElementById('cloud-url-in').value || '').trim().replace(/\/+$/, '');
+  var key = (document.getElementById('cloud-apikey-in').value || '').trim();
+  var msg = document.getElementById('cloud-msg');
+  if (!url || !url.startsWith('https://')) {
+    msg.style.display = 'block';
+    msg.style.background = '#FFEBEE';
+    msg.style.color = R;
+    msg.textContent = '\u274c Entrez une URL valide (https://...)';
+    return;
+  }
+  if (!key) {
+    msg.style.display = 'block';
+    msg.style.background = '#FFEBEE';
+    msg.style.color = R;
+    msg.textContent = '\u274c Entrez votre Cl\u00e9 API Web';
+    return;
+  }
+  fbUrl = url;
+  fbApiKey = key;
+  localStorage.setItem('fo-fb-url', fbUrl);
+  localStorage.setItem('fo-fb-apikey', fbApiKey);
+  msg.style.display = 'block';
+  msg.style.background = '#FFF8E1';
+  msg.style.color = '#F57F17';
+  msg.textContent = 'V\u00e9rification...';
+  var loaded = await cloudLoad();
+  if (loaded) {
+    msg.style.background = LG;
+    msg.style.color = '#2E7D32';
+    msg.textContent = '\u2705 Connect\u00e9 ! Donn\u00e9es charg\u00e9es.';
+    renderNav(); renderBanners(); renderTab();
+  } else {
+    msg.style.background = LG;
+    msg.style.color = '#2E7D32';
+    msg.textContent = '\u2705 Configur\u00e9 ! Connectez-vous via Administration pour \u00e9diter.';
+  }
+  document.getElementById('cloud-ok-info').style.display = 'block';
+  setTimeout(function() { document.getElementById('modal-cloud').style.display = 'none'; }, 2500);
+}
+
+// ——— EXPORT / IMPORT ———
+function exportData() {
+  var blob = new Blob([JSON.stringify(allData(), null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'fo-cerisiers-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importData(file) {
+  if (!file) return;
+  var r = new FileReader();
+  r.onload = function(e) {
+    try {
+      var d = JSON.parse(e.target.result);
+      applyData(d);
+      saveToStorage();
+      renderNav(); renderBanners(); renderTab();
+      alert('\u2705 Donn\u00e9es import\u00e9es !');
+    } catch(err) {
+      alert('\u274c Fichier invalide.');
+    }
+  };
+  r.readAsText(file);
+  document.getElementById('import-file').value = '';
+}
+
+// ——— ADD USER ———
+async function addUser() {
+  var email = (document.getElementById('nu-email').value || '').trim();
+  var pwd = document.getElementById('nu-pwd').value || '';
+  var msg = document.getElementById('nu-msg');
+  var btn = document.getElementById('nu-btn');
+  if (!email || !pwd) {
+    msg.style.display = 'block'; msg.style.background = '#FFEBEE'; msg.style.color = R;
+    msg.textContent = '\u274c Remplissez l\u2019email et le mot de passe';
+    return;
+  }
+  if (!fbApiKey) {
+    msg.style.display = 'block'; msg.style.background = '#FFEBEE'; msg.style.color = R;
+    msg.textContent = '\u274c Firebase non configur\u00e9';
+    return;
+  }
+  btn.textContent = 'Cr\u00e9ation...'; btn.disabled = true;
+  try {
+    var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + fbApiKey, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email:email, password:pwd, returnSecureToken:false})
+    });
+    var d = await r.json();
+    if (d.localId) {
+      msg.style.display = 'block'; msg.style.background = LG; msg.style.color = '#2E7D32';
+      msg.textContent = '\u2705 Compte cr\u00e9\u00e9 pour ' + email;
+      document.getElementById('nu-email').value = '';
+      document.getElementById('nu-pwd').value = '';
+    } else {
+      var errs = {'EMAIL_EXISTS':'Email d\u00e9j\u00e0 utilis\u00e9', 'WEAK_PASSWORD : Password should be at least 6 characters':'Mot de passe trop court'};
+      var em = (d.error && d.error.message) || '';
+      msg.style.display = 'block'; msg.style.background = '#FFEBEE'; msg.style.color = R;
+      msg.textContent = '\u274c ' + (errs[em] || 'Erreur');
+    }
+  } catch(e) {
+    msg.style.display = 'block'; msg.style.background = '#FFEBEE'; msg.style.color = R;
+    msg.textContent = '\u274c Erreur r\u00e9seau';
+  }
+  btn.textContent = 'Cr\u00e9er le compte'; btn.disabled = false;
+}
+
+// ——— NAV & BANNERS ———
+function renderNav() {
+  var h = '';
+  for (var i = 0; i < TABS.length; i++) {
+    var t = TABS[i];
+    var active = (t.id === currentTab);
+    h += '<button onclick="setTab(\'' + t.id + '\')" style="padding:10px 12px;background:' + (active ? 'rgba(255,255,255,.15)' : 'transparent') + ';color:#fff;border:none;border-bottom:' + (active ? '2px solid #fff' : '2px solid transparent') + ';cursor:pointer;font-size:12px;white-space:nowrap;font-weight:' + (active ? '500' : '400') + ';font-family:inherit">' + t.label;
+    if (t.id === 'alertes' && alerts.length) h += ' <span style="background:#FF6F00;color:#fff;border-radius:10px;font-size:10px;padding:0 5px;font-weight:700">' + alerts.length + '</span>';
+    h += '</button>';
+  }
+  document.getElementById('tabs-nav').innerHTML = h;
+}
+
+function renderBanners() {
+  var da = null;
+  for (var i = 0; i < alerts.length; i++) {
+    if (alerts[i].level === 'danger') { da = alerts[i]; break; }
+  }
+  var alertHtml = da ? '<div style="background:' + DR + ';color:#fff;padding:7px 16px;font-size:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">&#128680; ' + esc(da.title) + ' <button onclick="setTab(\'alertes\')" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit">Voir</button></div>' : '';
+  document.getElementById('b-alert').innerHTML = alertHtml;
+
+  var editHtml = '';
+  if (editMode) {
+    editHtml = '<div style="background:#FF6F00;color:#fff;padding:8px 16px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">';
+    editHtml += '&#9998; Mode \u00e9dition &mdash; sauvegarde auto ';
+    editHtml += '<span id="cloud-dot" onclick="openCloud()" style="width:12px;height:12px;border-radius:50%;display:inline-block;cursor:pointer;flex-shrink:0;border:2px solid rgba(255,255,255,.4);background:#9E9E9E" title="Cloud"></span>';
+    editHtml += '<button onclick="openCloud()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#9729; Sync cloud</button>';
+    editHtml += '<button onclick="document.getElementById(\'modal-users\').style.display=\'flex\'" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#128101; Utilisateurs</button>';
+    editHtml += '<button onclick="exportData()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#128228; Exporter</button>';
+    editHtml += '<button onclick="document.getElementById(\'import-file\').click()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#128229; Importer</button>';
+    editHtml += '<button onclick="setEdit(false)" style="background:rgba(0,0,0,.2);border:none;color:#fff;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit">Quitter</button>';
+    editHtml += '</div>';
+  }
+  document.getElementById('b-edit').innerHTML = editHtml;
+  setTimeout(function() { setCldDot(fbUrl ? 'ok' : 'off'); }, 30);
+
+  var fe = document.getElementById('footer-txt');
+  if (fe) {
+    var ftHtml = editMode ? '<input value="' + esc(footerText) + '" style="background:#333;color:#aaa;border:1.5px dashed #D32F2F;border-radius:4px;padding:4px 8px;font-size:12px;width:100%;margin-bottom:6px" oninput="footerText=this.value">' : '<div style="color:#aaa;font-size:12px;margin-bottom:4px">' + esc(footerText) + '</div>';
+    var feHtml = editMode ? '<input value="' + esc(footerEmail) + '" style="background:#333;color:#fff;border:1.5px dashed #D32F2F;border-radius:4px;padding:2px 6px;font-size:12px;width:200px" oninput="footerEmail=this.value">' : '<span style="color:#fff">' + esc(footerEmail) + '</span>';
+    fe.innerHTML = ftHtml + '<div style="color:#888;font-size:12px">Contact : ' + feHtml + '</div>';
+  }
+  var ab = document.getElementById('admin-btn');
+  if (ab) {
+    ab.textContent = editMode ? '\u2713 Quitter' : '\u270e Administration';
+    ab.style.background = editMode ? '#FF6F00' : 'rgba(255,255,255,.1)';
+  }
+}
+
+function openCloud() {
+  var urlEl = document.getElementById('cloud-url-in');
+  var keyEl = document.getElementById('cloud-apikey-in');
+  if (urlEl) urlEl.value = fbUrl || '';
+  if (keyEl) keyEl.value = fbApiKey || '';
+  if (fbUrl) document.getElementById('cloud-ok-info').style.display = 'block';
+  document.getElementById('modal-cloud').style.display = 'flex';
+}
+function setTab(id) { currentTab = id; renderNav(); renderTab(); }
+function setEdit(v) { editMode = v; renderBanners(); renderNav(); renderTab(); }
+function doSub() {
+  var v = document.getElementById('sub-in');
+  if (v && v.value) {
+    subbed = true;
+    document.getElementById('sub-zone').innerHTML = '<div style="background:rgba(255,255,255,.15);padding:7px 12px;border-radius:6px;color:#fff;font-size:12px">&#9989; Abonn\u00e9</div>';
+  }
+}
+function toggleAdmin() {
+  if (editMode) { setEdit(false); return; }
+  var emailZone = document.getElementById('adm-email-zone');
+  var subtitle = document.getElementById('adm-subtitle');
+  var legacy = document.getElementById('adm-legacy-note');
+  var err = document.getElementById('adm-err');
+  if (err) err.style.display = 'none';
+  if (fbApiKey) {
+    if (emailZone) emailZone.style.display = 'block';
+    if (subtitle) subtitle.textContent = 'Connectez-vous avec vos identifiants Firebase';
+    if (legacy) legacy.style.display = 'none';
+  } else {
+    if (emailZone) emailZone.style.display = 'none';
+    if (subtitle) subtitle.textContent = 'Entrez le mot de passe local';
+    if (legacy) legacy.style.display = 'block';
+  }
+  document.getElementById('modal-admin').style.display = 'flex';
+}
+function closeAdmin() {
+  document.getElementById('modal-admin').style.display = 'none';
+  document.getElementById('adm-pwd').value = '';
+  document.getElementById('adm-err').style.display = 'none';
+}
+async function chkAdmin() {
+  var email = document.getElementById('adm-email') ? document.getElementById('adm-email').value : '';
+  var pwd = document.getElementById('adm-pwd').value;
+  var err = document.getElementById('adm-err');
+  var btn = document.getElementById('adm-btn');
+  if (!fbApiKey) {
+    if (pwd === 'fo2026') { document.getElementById('modal-admin').style.display = 'none'; setEdit(true); }
+    else { err.style.display = 'block'; err.textContent = 'Mot de passe incorrect'; }
+    return;
+  }
+  if (!email || !pwd) { err.style.display = 'block'; err.textContent = 'Entrez votre email et mot de passe'; return; }
+  btn.textContent = 'Connexion...'; btn.disabled = true;
+  var res = await firebaseLogin(email, pwd);
+  btn.textContent = 'Se connecter'; btn.disabled = false;
+  if (res.ok) { document.getElementById('modal-admin').style.display = 'none'; setEdit(true); }
+  else { err.style.display = 'block'; err.textContent = res.msg; }
+}
+
+// ——— TAB RENDERERS ———
+function tAccueil() {
+  var ec = 0, vi = 0;
+  for (var i = 0; i < actions.length; i++) {
+    if (actions[i].status === 'en cours') ec++; else vi++;
+  }
+  var h = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px">';
+  var stats = [[news.length,'actualit\u00e9s'], [alerts.length,'alertes actives'], [ec,'actions en cours'], [vi,'victoires']];
+  for (var i = 0; i < stats.length; i++) {
+    h += '<div style="background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e0e0e0"><div style="font-size:24px;font-weight:500;color:' + R + '">' + stats[i][0] + '</div><div style="font-size:12px;color:#757575">' + stats[i][1] + '</div></div>';
+  }
+  h += '</div><h3 style="font-size:16px;font-weight:500;margin-bottom:12px">Actualit\u00e9s</h3>';
+  h += addB("news.unshift({id:nid(),date:'Date',cat:'Groupe',title:'Nouveau titre',content:'',imageUrl:'',videoUrl:'',linkUrl:'',linkLabel:'En savoir plus'});renderTab()", "Ajouter une actualit\u00e9");
+  for (var i = 0; i < news.length; i++) {
+    var n = news[i];
+    h += '<div class="card">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px">';
+    h += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex:1">';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(n.cat) + '" style="width:80px" oninput="news[' + i + '].cat=this.value">';
+      h += '<input class="ef" value="' + esc(n.date) + '" style="width:120px" oninput="news[' + i + '].date=this.value">';
+    } else {
+      h += bdg(n.cat, n.cat==='Accord' ? G : n.cat==='CSE' ? '#1565C0' : R);
+      h += '<span style="font-size:12px;color:#757575">' + esc(n.date) + '</span>';
+    }
+    h += '</div>' + delB('news.splice(' + i + ',1);renderTab()') + '</div>';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(n.title) + '" style="display:block;width:100%;font-size:15px;font-weight:500;margin-bottom:6px" oninput="news[' + i + '].title=this.value">';
+    } else {
+      h += '<div style="font-size:15px;font-weight:500;margin-bottom:6px">' + esc(n.title) + '</div>';
+    }
+    h += txta(n.content, 'news[' + i + '].content=this.value');
+    if (editMode) {
+      h += '<div style="margin-top:10px;padding:10px;background:#f9f9f9;border-radius:8px;border:1px solid #eee;display:flex;flex-direction:column;gap:8px">';
+      h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:#555;width:55px;flex-shrink:0">&#128247; Image</span><input class="ef" value="' + esc(n.imageUrl||'') + '" placeholder="URL image" style="flex:1" oninput="news[' + i + '].imageUrl=this.value"></div>';
+      h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:#555;width:55px;flex-shrink:0">&#127909; Vid\u00e9o</span><input class="ef" value="' + esc(n.videoUrl||'') + '" placeholder="URL YouTube" style="flex:1" oninput="news[' + i + '].videoUrl=this.value"></div>';
+      h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12px;color:#555;width:55px;flex-shrink:0">&#128279; Lien</span><input class="ef" value="' + esc(n.linkUrl||'') + '" placeholder="URL" style="flex:1;min-width:120px" oninput="news[' + i + '].linkUrl=this.value"><input class="ef" value="' + esc(n.linkLabel||'En savoir plus') + '" placeholder="Texte" style="width:130px" oninput="news[' + i + '].linkLabel=this.value"></div>';
+      h += '</div>';
+    }
+    if (n.imageUrl) h += '<img src="' + escH(n.imageUrl) + '" style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-top:10px" onerror="this.style.display=\'none\'">';
+    if (n.videoUrl) {
+      var vid = ytId(n.videoUrl);
+      if (vid) h += '<div style="margin-top:10px;border-radius:8px;overflow:hidden"><iframe width="100%" height="220" src="https://www.youtube.com/embed/' + vid + '" frameborder="0" allowfullscreen style="display:block"></iframe></div>';
+    }
+    if (n.linkUrl) h += '<div style="margin-top:10px"><a href="' + escH(n.linkUrl) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:' + LR + ';color:' + R + ';border:1px solid ' + R + ';border-radius:6px;text-decoration:none;font-size:13px;font-weight:500" onclick="event.stopPropagation()">&#128279; ' + esc(n.linkLabel||'En savoir plus') + '</a></div>';
+    h += '</div>';
+  }
+  return h;
+}
+
+function tAlertes() {
+  var h = addB("alerts.push({id:nid(),level:'warning',title:'Nouvelle alerte',date:'Date',desc:'Description...'});renderBanners();renderTab()", "Ajouter une alerte");
+  if (!alerts.length && !editMode) h += '<div class="card"><div style="text-align:center;color:#757575;padding:32px">Aucune alerte active</div></div>';
+  for (var i = 0; i < alerts.length; i++) {
+    var a = alerts[i];
+    var bc = a.level === 'danger' ? R : '#F57F17';
+    var bg = a.level === 'danger' ? LR : '#FFFDE7';
+    h += '<div style="border:2px solid ' + bc + ';border-radius:12px;padding:16px 20px;margin-bottom:12px;background:' + bg + '">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px">';
+    h += '<div style="display:flex;gap:8px;align-items:center;flex:1">';
+    if (editMode) {
+      h += '<select class="ef" onchange="alerts[' + i + '].level=this.value;renderBanners();renderTab();saveToStorage()">';
+      h += '<option value="danger"' + (a.level==='danger' ? ' selected' : '') + '>&#128308; Danger</option>';
+      h += '<option value="warning"' + (a.level==='warning' ? ' selected' : '') + '>&#128992; Avertissement</option></select>';
+      h += '<input class="ef" value="' + esc(a.title) + '" style="flex:1;font-weight:500" oninput="alerts[' + i + '].title=this.value">';
+    } else {
+      h += '<span>' + (a.level==='danger' ? '&#128308;' : '&#128992;') + '</span>';
+      h += '<span style="font-weight:500;color:' + (a.level==='danger' ? DR : '#E65100') + '">' + esc(a.title) + '</span>';
+    }
+    h += '</div>' + delB('alerts.splice(' + i + ',1);renderBanners();renderTab()') + '</div>';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(a.date) + '" style="width:160px;font-size:12px;margin-bottom:6px;display:block" oninput="alerts[' + i + '].date=this.value">';
+    } else {
+      h += '<div style="font-size:12px;color:#757575;margin-bottom:6px">' + esc(a.date) + '</div>';
+    }
+    h += txta(a.desc, 'alerts[' + i + '].desc=this.value');
+    h += '</div>';
+  }
+  return h;
+}
+
+function tActions() {
+  var ec = 0, vi = 0;
+  for (var i = 0; i < actions.length; i++) {
+    if (actions[i].status === 'en cours') ec++; else vi++;
+  }
+  var h = '<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">';
+  h += '<div style="background:' + LR + ';border:1px solid ' + R + ';border-radius:8px;padding:10px 16px;font-size:13px;color:' + DR + '"><strong>' + ec + '</strong> en cours</div>';
+  h += '<div style="background:' + LG + ';border:1px solid ' + G + ';border-radius:8px;padding:10px 16px;font-size:13px;color:#2E7D32"><strong>' + vi + '</strong> victoires</div></div>';
+  h += addB("actions.push({id:nid(),status:'en cours',title:'Nouvelle action',desc:'Description...',date:'Date'});renderTab()", "Ajouter une action");
+  for (var i = 0; i < actions.length; i++) {
+    var a = actions[i];
+    h += '<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><div style="flex:1">';
+    h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">';
+    if (editMode) {
+      h += '<select class="ef" onchange="actions[' + i + '].status=this.value;renderTab();saveToStorage()">';
+      h += '<option value="en cours"' + (a.status==='en cours' ? ' selected' : '') + '>En cours</option>';
+      h += '<option value="victoire"' + (a.status==='victoire' ? ' selected' : '') + '>Victoire</option></select>';
+      h += '<input class="ef" value="' + esc(a.date) + '" style="width:130px" oninput="actions[' + i + '].date=this.value">';
+    } else {
+      h += bdg(a.status==='victoire' ? '\u2713 Victoire' : 'En cours', a.status==='victoire' ? G : R);
+      h += '<span style="font-size:12px;color:#757575">' + esc(a.date) + '</span>';
+    }
+    h += '</div>';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(a.title) + '" style="display:block;width:100%;font-size:15px;font-weight:500;margin-bottom:4px" oninput="actions[' + i + '].title=this.value">';
+    } else {
+      h += '<div style="font-size:15px;font-weight:500;margin-bottom:4px">' + esc(a.title) + '</div>';
+    }
+    h += txta(a.desc, 'actions[' + i + '].desc=this.value');
+    h += '</div>' + delB('actions.splice(' + i + ',1);renderTab()') + '</div></div>';
+  }
+  return h;
+}
+
+function tContact() {
+  var h = '<h3 style="font-size:16px;font-weight:500;margin-bottom:12px">Vos repr\u00e9sentants FO</h3>';
+  h += addB("elus.push({id:nid(),initials:'PN',name:'Pr\u00e9nom Nom',role:'R\u00f4le',domain:'Domaine',email:'email@fo.fr',phone:'06 00 00 00 00'});renderTab()", "Ajouter un \u00e9lu");
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px">';
+  for (var i = 0; i < elus.length; i++) {
+    var e = elus[i];
+    h += '<div class="card">';
+    if (editMode) h += '<div style="display:flex;justify-content:flex-end;margin-bottom:6px">' + delB('elus.splice(' + i + ',1);renderTab()') + '</div>';
+    h += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">';
+    h += '<div style="width:44px;height:44px;border-radius:50%;background:' + R + ';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:14px;flex-shrink:0">';
+    if (editMode) {
+      h += '<input value="' + esc(e.initials) + '" maxlength="2" style="width:36px;text-align:center;background:rgba(255,255,255,.2);border:none;color:#fff;font-weight:500;font-size:13px" oninput="elus[' + i + '].initials=this.value">';
+    } else {
+      h += esc(e.initials);
+    }
+    h += '</div><div style="flex:1;min-width:0">';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(e.name) + '" style="display:block;width:100%;font-size:14px;font-weight:500;margin-bottom:4px" oninput="elus[' + i + '].name=this.value">';
+      h += '<input class="ef" value="' + esc(e.role) + '" style="display:block;width:100%;font-size:12px;color:' + R + '" oninput="elus[' + i + '].role=this.value">';
+    } else {
+      h += '<div style="font-weight:500;font-size:14px">' + esc(e.name) + '</div>';
+      h += '<div style="font-size:12px;color:' + R + '">' + esc(e.role) + '</div>';
+    }
+    h += '</div></div>';
+    var flds = ['domain','email','phone'];
+    for (var j = 0; j < flds.length; j++) {
+      if (editMode) {
+        h += '<input class="ef" value="' + esc(e[flds[j]]||'') + '" style="display:block;width:100%;margin-bottom:4px" oninput="elus[' + i + '][\'' + flds[j] + '\']=this.value">';
+      } else {
+        h += '<div style="font-size:12px;color:#757575;margin-bottom:4px">' + esc(e[flds[j]]) + '</div>';
+      }
+    }
+    h += '</div>';
+  }
+  h += '</div><h3 style="font-size:16px;font-weight:500;margin-bottom:12px">Envoyer un message</h3>';
+  if (contactSent) {
+    h += '<div class="card" style="background:' + LG + ';border:1px solid ' + G + ';text-align:center;padding:24px"><div style="font-size:32px;margin-bottom:8px">&#9989;</div><div style="color:#2E7D32;font-weight:500">Message envoy\u00e9\u00a0!</div><button onclick="contactSent=false;cf={nom:\'\',email:\'\',elu:\'\',sujet:\'\',msg:\'\'};renderTab()" style="margin-top:12px;padding:8px 16px;background:' + G + ';color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Nouveau message</button></div>';
+  } else {
+    h += '<div class="card">';
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">';
+    h += '<div><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Votre nom</label><input value="' + esc(cf.nom) + '" placeholder="Nom Pr\u00e9nom" style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px" oninput="cf.nom=this.value"></div>';
+    h += '<div><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Email</label><input value="' + esc(cf.email) + '" placeholder="vous@exemple.fr" style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px" oninput="cf.email=this.value"></div></div>';
+    h += '<div style="margin-bottom:10px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Destinataire</label>';
+    h += '<select style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px;font-family:inherit" onchange="cf.elu=this.value"><option value="">S\u00e9lectionner...</option>';
+    for (var i = 0; i < elus.length; i++) h += '<option value="' + esc(elus[i].name) + '"' + (cf.elu===elus[i].name ? ' selected' : '') + '>' + esc(elus[i].name) + ' \u2014 ' + esc(elus[i].role) + '</option>';
+    h += '</select></div>';
+    h += '<div style="margin-bottom:10px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Sujet</label><input value="' + esc(cf.sujet) + '" style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px" oninput="cf.sujet=this.value"></div>';
+    h += '<div style="margin-bottom:14px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Message</label><textarea style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px;resize:vertical;min-height:90px;font-family:inherit" oninput="cf.msg=this.value">' + esc(cf.msg) + '</textarea></div>';
+    h += '<button onclick="if(cf.nom&&cf.email&&cf.msg){contactSent=true;renderTab()}" class="btn btn-r">&#128228; Envoyer</button></div>';
+  }
+  return h;
+}
+
+function tInfos() {
+  var h = '<div style="background:' + LR + ';border:0.5px solid ' + R + ';border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:' + DR + ';line-height:1.7"><strong>Pour toute question sp\u00e9cifique,</strong> contactez vos \u00e9lus ou utilisez le chatbot FO.</div>';
+  h += addB("infos.push({id:nid(),title:'Nouvelle section',items:['Nouvel \u00e9l\u00e9ment']});renderTab()", "Ajouter une section");
+  for (var i = 0; i < infos.length; i++) {
+    var s = infos[i];
+    h += '<div class="card"' + (editMode ? '' : ' style="cursor:pointer" onclick="openInfo=(openInfo===' + i + '?null:' + i + ');renderTab()"') + '>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    h += '<div style="display:flex;gap:10px;align-items:center;flex:1"><span style="font-size:20px;color:' + R + '">&#128203;</span>';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(s.title) + '" style="font-size:15px;font-weight:500;flex:1" oninput="infos[' + i + '].title=this.value">';
+    } else {
+      h += '<span style="font-weight:500;font-size:15px">' + esc(s.title) + '</span>';
+    }
+    h += '</div>';
+    h += editMode ? delB('infos.splice(' + i + ',1);renderTab()') : '<span style="color:#757575">' + (openInfo===i ? '&#9650;' : '&#9660;') + '</span>';
+    h += '</div>';
+    if (editMode || openInfo === i) {
+      h += '<div style="margin-top:12px;border-top:0.5px solid #e0e0e0;padding-top:12px">';
+      for (var j = 0; j < s.items.length; j++) {
+        h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="color:' + G + ';flex-shrink:0">&#10003;</span>';
+        if (editMode) {
+          h += '<input class="ef" value="' + esc(s.items[j]) + '" style="flex:1" oninput="infos[' + i + '].items[' + j + ']=this.value">';
+          h += '<button onclick="infos[' + i + '].items.splice(' + j + ',1);saveToStorage();renderTab()" style="background:none;border:none;color:' + R + ';cursor:pointer;font-size:16px">&#10005;</button>';
+        } else {
+          h += '<span style="font-size:13px;color:#616161">' + esc(s.items[j]) + '</span>';
+        }
+        h += '</div>';
+      }
+      if (editMode) h += '<button onclick="infos[' + i + '].items.push(\'Nouvel \u00e9l\u00e9ment\');saveToStorage();renderTab()" style="font-size:12px;color:' + G + ';background:' + LG + ';border:1px dashed ' + G + ';border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">+ Ajouter</button>';
+      h += '</div>';
+    }
+    h += '</div>';
+  }
+  return h;
+}
+
+function tDocuments() {
+  var cats = ['Tous','PV CSE','Tracts FO','Accords','Guides'];
+  var h = '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">';
+  for (var i = 0; i < cats.length; i++) {
+    var c = cats[i];
+    var active = (docFilter === c);
+    h += '<button onclick="docFilter=\'' + c + '\';renderTab()" style="padding:6px 14px;border-radius:20px;border:1px solid ' + (active ? R : '#e0e0e0') + ';background:' + (active ? R : 'transparent') + ';color:' + (active ? '#fff' : '#757575') + ';cursor:pointer;font-size:13px;font-family:inherit">' + c + '</button>';
+  }
+  h += '</div>';
+  var defCat = docFilter === 'Tous' ? 'PV CSE' : docFilter;
+  h += addB("docs.push({id:nid(),cat:'" + defCat + "',title:'Nouveau document',date:'Date',content:'',imageUrl:'',linkUrl:'',linkLabel:'T\u00e9l\u00e9charger'});renderTab()", "Ajouter dans : " + defCat);
+  var filtered = docFilter === 'Tous' ? docs : docs.filter(function(d) { return d.cat === docFilter; });
+  for (var fi = 0; fi < filtered.length; fi++) {
+    var d = filtered[fi];
+    var i = docs.indexOf(d);
+    var isOpen = editMode || openDocs[d.id];
+    h += '<div class="card">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px' + (editMode ? '' : ';cursor:pointer') + '"' + (editMode ? '' : ' onclick="openDocs[docs[' + i + '].id]=!openDocs[docs[' + i + '].id];renderTab()"') + '>';
+    h += '<div style="display:flex;gap:12px;align-items:center;flex:1"><span style="font-size:22px;color:' + R + '">&#128196;</span><div style="flex:1">';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(d.title) + '" style="display:block;width:100%;font-size:14px;font-weight:500;margin-bottom:4px" oninput="docs[' + i + '].title=this.value">';
+    } else {
+      h += '<div style="font-size:14px;font-weight:500">' + esc(d.title) + '</div>';
+    }
+    h += '<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(d.cat) + '" style="width:90px" oninput="docs[' + i + '].cat=this.value">';
+      h += '<input class="ef" value="' + esc(d.date) + '" style="width:110px" oninput="docs[' + i + '].date=this.value">';
+    } else {
+      h += bdg(d.cat, '#546E7A');
+      h += '<span style="font-size:12px;color:#757575">' + esc(d.date) + '</span>';
+    }
+    h += '</div></div></div>';
+    h += '<div style="display:flex;align-items:center;gap:8px">';
+    if (!editMode) h += '<span style="color:#757575;font-size:12px">' + (isOpen ? '&#9650;' : '&#9660;') + '</span>';
+    h += delB('docs.splice(' + i + ',1);renderTab()');
+    h += '</div></div>';
+    if (isOpen) {
+      h += '<div style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:14px">';
+      h += '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">&#128196; Contenu</label>';
+      h += txta(d.content, 'docs[' + i + '].content=this.value');
+      h += '</div>';
+      h += '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">&#128247; Image</label>';
+      if (editMode) h += '<input class="ef" value="' + esc(d.imageUrl||'') + '" placeholder="URL image (https://...)" style="width:100%;margin-bottom:8px" oninput="docs[' + i + '].imageUrl=this.value">';
+      if (d.imageUrl) h += '<img src="' + escH(d.imageUrl) + '" style="width:100%;max-height:320px;object-fit:contain;border-radius:8px;border:1px solid #f0f0f0" onerror="this.style.display=\'none\'">';
+      else if (!editMode) h += '<span style="font-size:12px;color:#bbb">Aucune image</span>';
+      h += '</div>';
+      h += '<div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">&#128279; Lien / PDF</label>';
+      if (editMode) h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><input class="ef" value="' + esc(d.linkUrl||'') + '" placeholder="URL (Google Drive, PDF...)" style="flex:1;min-width:160px" oninput="docs[' + i + '].linkUrl=this.value"><input class="ef" value="' + esc(d.linkLabel||'T\u00e9l\u00e9charger') + '" placeholder="Texte" style="width:140px" oninput="docs[' + i + '].linkLabel=this.value"></div>';
+      if (d.linkUrl) h += '<a href="' + escH(d.linkUrl) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:' + LR + ';color:' + R + ';border:1px solid ' + R + ';border-radius:6px;text-decoration:none;font-size:13px;font-weight:500" onclick="event.stopPropagation()">&#11015; ' + esc(d.linkLabel||'T\u00e9l\u00e9charger') + '</a>';
+      else if (!editMode) h += '<span style="font-size:12px;color:#bbb">Aucun lien</span>';
+      h += '</div></div>';
+    }
+    h += '</div>';
+  }
+  return h;
+}
+
+function tAgenda() {
+  var colors = {CSE:'#1565C0', NAO:DR, 'AG FO':R, CSSCT:'#6A1B9A'};
+  var h = addB("agenda.push({id:nid(),type:'CSE',date:'Date',title:'Nouvel \u00e9v\u00e9nement',lieu:'Lieu'});renderTab()", "Ajouter un \u00e9v\u00e9nement");
+  for (var i = 0; i < agenda.length; i++) {
+    var ev = agenda[i];
+    var c = colors[ev.type] || R;
+    h += '<div class="card"><div style="display:flex;gap:16px;align-items:center">';
+    h += '<div style="background:' + c + ';color:#fff;border-radius:8px;padding:10px 12px;text-align:center;min-width:60px;flex-shrink:0">';
+    if (editMode) {
+      h += '<input value="' + esc(ev.date) + '" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;text-align:center;width:60px" oninput="agenda[' + i + '].date=this.value">';
+    } else {
+      var pts = ev.date.split(' ');
+      h += '<div style="font-size:18px;font-weight:500">' + esc(pts[0]) + '</div><div style="font-size:11px;opacity:.9">' + esc(pts.slice(1).join(' ')) + '</div>';
+    }
+    h += '</div><div style="flex:1"><div style="margin-bottom:4px">';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(ev.type) + '" style="width:80px;font-size:11px" oninput="agenda[' + i + '].type=this.value">';
+    } else {
+      h += bdg(ev.type, c);
+    }
+    h += '</div>';
+    if (editMode) {
+      h += '<input class="ef" value="' + esc(ev.title) + '" style="display:block;width:100%;font-size:15px;font-weight:500;margin-bottom:4px" oninput="agenda[' + i + '].title=this.value">';
+      h += '<input class="ef" value="' + esc(ev.lieu) + '" style="display:block;width:100%;font-size:12px" oninput="agenda[' + i + '].lieu=this.value">';
+    } else {
+      h += '<div style="font-size:15px;font-weight:500">' + esc(ev.title) + '</div>';
+      h += '<div style="font-size:12px;color:#757575">&#128205; ' + esc(ev.lieu) + '</div>';
+    }
+    h += '</div>' + delB('agenda.splice(' + i + ',1);renderTab()') + '</div></div>';
+  }
+  return h;
+}
+
+function tNewsletter() {
+  var h = '';
+  if (!nlMode) {
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
+    h += '<h3 style="font-size:16px;font-weight:500">Newsletters</h3>';
+    h += '<button class="btn btn-r" onclick="nlMode=true;renderTab()">+ Nouvelle newsletter</button></div>';
+    for (var i = 0; i < newsletters.length; i++) {
+      var n = newsletters[i];
+      h += '<div class="card"><div style="font-weight:500;margin-bottom:6px">' + esc(n.title) + '</div>';
+      h += '<div style="display:flex;gap:16px;flex-wrap:wrap">';
+      h += '<span style="font-size:12px;color:#757575">&#128197; ' + esc(n.date) + '</span>';
+      h += '<span style="font-size:12px;color:#757575">&#128101; ' + n.dest + '</span>';
+      h += '<span style="font-size:12px;color:' + G + '">&#128065; ' + n.ouv + ' (' + Math.round(n.ouv/n.dest*100) + '%)</span>';
+      h += '</div></div>';
+    }
+  } else if (nlSent) {
+    h += '<div class="card" style="background:' + LG + ';border:1px solid ' + G + ';text-align:center;padding:32px">';
+    h += '<div style="font-size:36px;margin-bottom:12px">&#9989;</div>';
+    h += '<div style="font-size:16px;font-weight:500;color:#2E7D32">Newsletter envoy\u00e9e\u00a0!</div>';
+    h += '<button onclick="nlSent=false;nlMode=false;nlForm={titre:\'\',contenu:\'\'};renderTab()" style="margin-top:16px;padding:8px 20px;background:' + G + ';color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Retour</button></div>';
+  } else {
+    h += '<div class="card">';
+    h += '<div style="display:flex;justify-content:space-between;margin-bottom:16px">';
+    h += '<h3 style="font-size:16px;font-weight:500">R\u00e9diger</h3>';
+    h += '<button style="background:none;border:none;cursor:pointer;color:#757575;font-family:inherit;font-size:13px" onclick="nlMode=false;renderTab()">Annuler</button></div>';
+    h += '<div style="margin-bottom:12px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Titre</label>';
+    h += '<input value="' + esc(nlForm.titre) + '" placeholder="Newsletter FO..." style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px" oninput="nlForm.titre=this.value"></div>';
+    h += '<div style="margin-bottom:16px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Contenu</label>';
+    h += '<textarea style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px;resize:vertical;min-height:160px;font-family:inherit" oninput="nlForm.contenu=this.value">' + esc(nlForm.contenu) + '</textarea></div>';
+    h += '<button onclick="if(nlForm.titre&&nlForm.contenu){nlSent=true;renderTab()}" class="btn btn-r">&#128228; Envoyer</button></div>';
+  }
+  return h;
+}
+
+function tSondages() {
+  var h = '';
+  if (!sdMode) {
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
+    h += '<h3 style="font-size:16px;font-weight:500">Sondages</h3>';
+    h += '<button class="btn btn-r" onclick="sdMode=true;renderTab()">+ Nouveau sondage</button></div>';
+    for (var i = 0; i < sondages.length; i++) {
+      var s = sondages[i];
+      h += '<div class="card">';
+      h += bdg(s.status==='actif' ? 'Actif' : 'Clos', s.status==='actif' ? G : '#546E7A');
+      h += ' <span style="font-size:12px;color:#757575">' + esc(s.date) + '</span>';
+      h += '<div style="font-size:15px;font-weight:500;margin:8px 0">' + esc(s.title) + '</div>';
+      h += '<div style="font-size:12px;color:#757575;margin-bottom:8px">' + s.reponses + ' r\u00e9ponses</div>';
+      h += '<div style="background:#f5f5f5;border-radius:6px;height:6px"><div style="width:' + Math.min(s.reponses,100) + '%;height:100%;background:' + (s.status==='actif' ? G : '#90A4AE') + ';border-radius:6px"></div></div>';
+      h += '</div>';
+    }
+  } else if (sdSent) {
+    h += '<div class="card" style="background:' + LG + ';border:1px solid ' + G + ';text-align:center;padding:32px">';
+    h += '<div style="font-size:36px;margin-bottom:12px">&#9989;</div>';
+    h += '<div style="font-size:16px;font-weight:500;color:#2E7D32">Sondage envoy\u00e9\u00a0!</div>';
+    h += '<button onclick="sdSent=false;sdMode=false;sdForm={titre:\'\',q1:\'\',q2:\'\',q3:\'\'};renderTab()" style="margin-top:16px;padding:8px 20px;background:' + G + ';color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Retour</button></div>';
+  } else {
+    h += '<div class="card">';
+    h += '<div style="display:flex;justify-content:space-between;margin-bottom:16px">';
+    h += '<h3 style="font-size:16px;font-weight:500">Cr\u00e9er un sondage</h3>';
+    h += '<button style="background:none;border:none;cursor:pointer;color:#757575;font-family:inherit;font-size:13px" onclick="sdMode=false;renderTab()">Annuler</button></div>';
+    h += '<div style="margin-bottom:12px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Titre</label>';
+    h += '<input value="' + esc(sdForm.titre) + '" placeholder="Titre..." style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px" oninput="sdForm.titre=this.value"></div>';
+    var qs = ['q1','q2','q3'];
+    for (var qi = 0; qi < qs.length; qi++) {
+      h += '<div style="margin-bottom:12px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Question ' + (qi+1) + (qi>0 ? ' (optionnel)' : '') + '</label>';
+      h += '<input value="' + esc(sdForm[qs[qi]]) + '" placeholder="Question ' + (qi+1) + '..." style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px" oninput="sdForm.' + qs[qi] + '=this.value"></div>';
+    }
+    h += '<button onclick="if(sdForm.titre&&sdForm.q1){sdSent=true;renderTab()}" class="btn btn-r">&#128228; Envoyer</button></div>';
+  }
+  return h;
+}
+
+function tChatbot() {
+  var h = '<div style="background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;overflow:hidden">';
+  h += '<div style="background:' + R + ';padding:14px 18px;display:flex;align-items:center;gap:10px">';
+  h += '<div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px">&#128172;</div>';
+  h += '<div><div style="color:#fff;font-weight:500;font-size:14px">Assistant FO CSE Les Cerisiers</div>';
+  h += '<div style="color:rgba(255,255,255,.8);font-size:12px">Vos droits, vos questions</div></div></div>';
+  if (!apiKey) {
+    h += '<div style="padding:16px;background:#FFF8E1;border-bottom:1px solid #FFE082">';
+    h += '<div style="font-size:13px;color:#F57F17;margin-bottom:8px">&#128273; Entrez votre cl\u00e9 API Anthropic :</div>';
+    h += '<div style="display:flex;gap:8px"><input id="apik" type="password" placeholder="sk-ant-..." style="flex:1;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px">';
+    h += '<button onclick="apiKey=document.getElementById(\'apik\').value;renderTab()" class="btn btn-r">Valider</button></div>';
+    h += '<div style="font-size:11px;color:#757575;margin-top:6px"><a href="https://console.anthropic.com" target="_blank" style="color:' + R + '">console.anthropic.com</a></div></div>';
+  }
+  h += '<div id="chat-msgs" style="height:360px;overflow-y:auto;padding:16px">';
+  for (var i = 0; i < chatMsgs.length; i++) {
+    var m = chatMsgs[i];
+    h += '<div style="display:flex;justify-content:' + (m.role==='user' ? 'flex-end' : 'flex-start') + ';margin-bottom:12px">';
+    if (m.role === 'assistant') h += '<div style="width:28px;height:28px;border-radius:50%;background:' + R + ';display:flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0;align-self:flex-end;font-size:10px;font-weight:700;color:#fff">FO</div>';
+    h += '<div style="max-width:75%;padding:10px 14px;border-radius:' + (m.role==='user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px') + ';background:' + (m.role==='user' ? R : '#f5f5f5') + ';color:' + (m.role==='user' ? '#fff' : '#212121') + ';font-size:13px;line-height:1.6;white-space:pre-wrap">' + esc(m.content) + '</div></div>';
+  }
+  if (chatLoading) {
+    h += '<div style="display:flex;gap:8px;margin-bottom:12px">';
+    h += '<div style="width:28px;height:28px;border-radius:50%;background:' + R + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">FO</div>';
+    h += '<div style="padding:10px 14px;background:#f5f5f5;border-radius:16px;font-size:13px;color:#757575">En train de r\u00e9pondre...</div></div>';
+  }
+  h += '</div>';
+  h += '<div style="padding:12px 16px;border-top:0.5px solid #e0e0e0;display:flex;gap:8px">';
+  h += '<input id="chat-in" placeholder="Posez votre question..." style="flex:1;padding:8px 12px;border-radius:20px;border:0.5px solid #e0e0e0;font-size:13px" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendChat()}">';
+  h += '<button onclick="sendChat()" style="width:36px;height:36px;border-radius:50%;background:' + R + ';border:none;cursor:pointer;color:#fff;font-size:16px">&#10148;</button></div>';
+  h += '<div style="padding:8px 16px 12px;display:flex;gap:6px;flex-wrap:wrap">';
+  var qs = ['Mes droits aux cong\u00e9s', 'Comment fonctionne le CSE\u00a0?', 'Prime de nuit\u00a0?', 'Signaler un probl\u00e8me'];
+  for (var qi = 0; qi < qs.length; qi++) {
+    h += '<button onclick="document.getElementById(\'chat-in\').value=\'' + qs[qi] + '\'" style="padding:4px 10px;font-size:11px;border-radius:12px;border:0.5px solid ' + R + ';background:' + LR + ';color:' + DR + ';cursor:pointer;font-family:inherit">' + qs[qi] + '</button>';
+  }
+  h += '</div></div>';
+  return h;
+}
+
+async function sendChat() {
+  var inp = document.getElementById('chat-in');
+  var msg = inp ? inp.value.trim() : '';
+  if (!msg || chatLoading) return;
+  if (!apiKey) { alert('Veuillez entrer votre cl\u00e9 API.'); return; }
+  inp.value = '';
+  chatMsgs.push({role:'user', content:msg});
+  chatLoading = true;
+  renderTab();
+  var el = document.getElementById('chat-msgs');
+  if (el) el.scrollTop = el.scrollHeight;
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:1000, system:'Tu es l\'assistant du syndicat FO CSE Les Cerisiers. Tu aides sur droits du travail, CSE, cong\u00e9s, salaires. R\u00e9ponds en fran\u00e7ais.', messages:chatMsgs.map(function(m) { return {role:m.role, content:m.content}; })})
+    });
+    var d = await res.json();
+    chatMsgs.push({role:'assistant', content:(d.content && d.content[0]) ? d.content[0].text : 'Erreur. Contactez les \u00e9lus FO.'});
+  } catch(e) {
+    chatMsgs.push({role:'assistant', content:'Erreur de connexion.'});
+  }
+  chatLoading = false;
+  renderTab();
+  setTimeout(function() { var el = document.getElementById('chat-msgs'); if (el) el.scrollTop = el.scrollHeight; }, 50);
+}
+
+function renderTab() {
+  var map = {accueil:tAccueil, alertes:tAlertes, actions:tActions, contact:tContact, infos:tInfos, documents:tDocuments, agenda:tAgenda, newsletter:tNewsletter, sondages:tSondages, chatbot:tChatbot};
+  var el = document.getElementById('tab-content');
+  if (el) el.innerHTML = (map[currentTab] || tAccueil)();
+}
+
+// ——— INIT ———
+loadFromStorage();
+renderNav();
+renderBanners();
+renderTab();
+if (fbUrl) {
+  cloudLoad().then(function(ok) {
+    if (ok) { renderNav(); renderBanners(); renderTab(); }
+  });
+}
+</script>
+</body>
+</html>
