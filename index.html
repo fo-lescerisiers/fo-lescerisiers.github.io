@@ -298,6 +298,36 @@ function ytId(url) {
   var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
   return m ? m[1] : null;
 }
+function handleImageUpload(input, setterCode) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { alert('Veuillez choisir une image.'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var maxW = 1000;
+      var scale = Math.min(1, maxW / img.width);
+      var w = Math.round(img.width * scale);
+      var h = Math.round(img.height * scale);
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+      if (dataUrl.length > 700000) {
+        dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+      }
+      try {
+        eval(setterCode.replace('__VALUE__', 'dataUrl'));
+      } catch(err) {}
+      renderTab();
+      saveToStorage();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 function inp(v, cb, w) {
   w = w || '100%';
   if (!editMode) return '<span>' + esc(v) + '</span>';
@@ -686,7 +716,8 @@ function tAccueil() {
     h += txta(n.content, 'news[' + i + '].content=this.value');
     if (editMode) {
       h += '<div style="margin-top:10px;padding:10px;background:#f9f9f9;border-radius:8px;border:1px solid #eee;display:flex;flex-direction:column;gap:8px">';
-      h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:#555;width:55px;flex-shrink:0">&#128247; Image</span><input class="ef" value="' + esc(n.imageUrl||'') + '" placeholder="URL image" style="flex:1" oninput="news[' + i + '].imageUrl=this.value"></div>';
+      h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12px;color:#555;width:55px;flex-shrink:0">&#128247; Image</span><input class="ef" value="' + esc(n.imageUrl||'') + '" placeholder="URL image" style="flex:1;min-width:120px" oninput="news[' + i + '].imageUrl=this.value">';
+      h += '<label style="padding:5px 10px;background:' + R + ';color:#fff;border-radius:5px;cursor:pointer;font-size:12px;white-space:nowrap">&#128193; Parcourir<input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(this,\'news[' + i + '].imageUrl=__VALUE__\')"></label></div>';
       h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:#555;width:55px;flex-shrink:0">&#127909; Vid\u00e9o</span><input class="ef" value="' + esc(n.videoUrl||'') + '" placeholder="URL YouTube" style="flex:1" oninput="news[' + i + '].videoUrl=this.value"></div>';
       h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12px;color:#555;width:55px;flex-shrink:0">&#128279; Lien</span><input class="ef" value="' + esc(n.linkUrl||'') + '" placeholder="URL" style="flex:1;min-width:120px" oninput="news[' + i + '].linkUrl=this.value"><input class="ef" value="' + esc(n.linkLabel||'En savoir plus') + '" placeholder="Texte" style="width:130px" oninput="news[' + i + '].linkLabel=this.value"></div>';
       h += '</div>';
@@ -899,7 +930,10 @@ function tDocuments() {
       h += txta(d.content, 'docs[' + i + '].content=this.value');
       h += '</div>';
       h += '<div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">&#128247; Image</label>';
-      if (editMode) h += '<input class="ef" value="' + esc(d.imageUrl||'') + '" placeholder="URL image (https://...)" style="width:100%;margin-bottom:8px" oninput="docs[' + i + '].imageUrl=this.value">';
+      if (editMode) {
+        h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><input class="ef" value="' + esc(d.imageUrl||'') + '" placeholder="URL image (https://...)" style="flex:1;min-width:120px" oninput="docs[' + i + '].imageUrl=this.value">';
+        h += '<label style="padding:8px 12px;background:' + R + ';color:#fff;border-radius:6px;cursor:pointer;font-size:13px;white-space:nowrap">&#128193; Parcourir<input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(this,\'docs[' + i + '].imageUrl=__VALUE__\')"></label></div>';
+      }
       if (d.imageUrl) h += '<img src="' + escH(d.imageUrl) + '" style="width:100%;max-height:320px;object-fit:contain;border-radius:8px;border:1px solid #f0f0f0" onerror="this.style.display=\'none\'">';
       else if (!editMode) h += '<span style="font-size:12px;color:#bbb">Aucune image</span>';
       h += '</div>';
