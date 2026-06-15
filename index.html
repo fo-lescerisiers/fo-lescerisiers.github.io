@@ -39,7 +39,7 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
           <path id="tc" d="M18,42 A34,34 0 0,1 82,42"/>
           <path id="bc" d="M16,60 A36,36 0 0,0 84,60"/>
         </defs>
-        <text fill="black" font-size="9.5" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#tc" startOffset="50%" text-anchor="middle">v&#233;t&#233;rinaires et ASV</textPath></text>
+        <text fill="black" font-size="9.5" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#tc" startOffset="50%" text-anchor="middle">vétérinaires et ASV</textPath></text>
         <text x="50" y="62" text-anchor="middle" fill="white" font-size="34" font-weight="900" font-style="italic" font-family="Arial Black,sans-serif">FO</text>
         <text fill="black" font-size="10" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#bc" startOffset="50%" text-anchor="middle">les cerisiers</textPath></text>
       </svg>
@@ -88,17 +88,17 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
       <button onclick="document.getElementById('modal-users').style.display='none'" style="background:#f5f5f5;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px">&#10005;</button>
     </div>
     <div style="background:#E8F5E9;border-radius:10px;padding:16px;margin-bottom:16px">
-      <div style="font-weight:600;font-size:14px;color:#2E7D32;margin-bottom:12px">&#10133; Ajouter un &eacute;lu</div>
+      <div style="font-weight:600;font-size:14px;color:#2E7D32;margin-bottom:12px">&#10133; Ajouter un élu</div>
       <div style="margin-bottom:10px">
         <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Email</label>
         <input id="nu-email" type="email" placeholder="prenom.nom@example.fr" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #c8e6c9;font-size:13px">
       </div>
       <div style="margin-bottom:12px">
-        <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Mot de passe (6 caract&egrave;res min.)</label>
-        <input id="nu-pwd" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #c8e6c9;font-size:13px">
+        <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Mot de passe (6 caractères min.)</label>
+        <input id="nu-pwd" type="password" placeholder="••••••••" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #c8e6c9;font-size:13px">
       </div>
       <div id="nu-msg" style="display:none;font-size:12px;padding:7px 10px;border-radius:6px;margin-bottom:10px"></div>
-      <button id="nu-btn" onclick="addUser()" class="btn btn-r" style="width:100%">Cr&eacute;er le compte</button>
+      <button id="nu-btn" onclick="addUser()" class="btn btn-r" style="width:100%">Créer le compte</button>
     </div>
     <div style="background:#FFF3E0;border-radius:10px;padding:14px">
       <div style="font-weight:600;font-size:13px;color:#E65100;margin-bottom:8px">&#128274; Supprimer un utilisateur</div>
@@ -118,22 +118,22 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
       <button onclick="document.getElementById('modal-cloud').style.display='none'" style="background:#f5f5f5;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px">&#10005;</button>
     </div>
     <div style="background:#E8F5E9;border-radius:8px;padding:14px;font-size:13px;line-height:1.9;color:#2E7D32;margin-bottom:18px">
-      <strong>Configuration en 3 &eacute;tapes :</strong><br>
+      <strong>Configuration en 3 étapes :</strong><br>
       <span style="color:#424242">
       &#9312; <a href="https://console.firebase.google.com" target="_blank" style="color:#D32F2F;font-weight:600">console.firebase.google.com</a><br>
-      &#9313; Realtime Database &rarr; Cr&eacute;er &rarr; Mode test<br>
+      &#9313; Realtime Database &rarr; Créer &rarr; Mode test<br>
       &#9314; Copiez l'URL de la base
       </span>
     </div>
     <div id="cloud-ok-info" style="display:none;background:#E3F2FD;border-radius:8px;padding:12px;font-size:13px;color:#1565C0;margin-bottom:16px">
-      &#9989; Cloud configur&eacute;. M&ecirc;me URL sur un autre appareil pour synchroniser.
+      &#9989; Cloud configuré. Même URL sur un autre appareil pour synchroniser.
     </div>
     <div style="margin-bottom:14px">
       <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">URL Firebase</label>
       <input id="cloud-url-in" type="text" placeholder="https://mon-projet-default-rtdb.firebaseio.com" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px">
     </div>
     <div style="margin-bottom:16px">
-      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">Cl&eacute; API Web</label>
+      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">Clé API Web</label>
       <input id="cloud-apikey-in" type="text" placeholder="AIzaSy..." style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px">
     </div>
     <div style="display:flex;gap:8px">
@@ -153,19 +153,19 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
     </div>
     <div style="background:#FFEBEE;border-left:4px solid #D32F2F;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
       <div style="font-weight:700;font-size:14px;color:#B71C1C;margin-bottom:8px">&#9998; 1. Modifier le contenu</div>
-      <div style="font-size:13px;line-height:1.8">Bas de page &rarr; <strong>Administration</strong> &rarr; email + mot de passe Firebase<br>Textes encadr&eacute;s en rouge = modifiables. <strong style="color:#388E3C">+</strong> ajouter, <strong style="color:#D32F2F">&#10005;</strong> supprimer.</div>
+      <div style="font-size:13px;line-height:1.8">Bas de page &rarr; <strong>Administration</strong> &rarr; email + mot de passe Firebase<br>Textes encadrés en rouge = modifiables. <strong style="color:#388E3C">+</strong> ajouter, <strong style="color:#D32F2F">&#10005;</strong> supprimer.</div>
     </div>
     <div style="background:#E8F5E9;border-left:4px solid #388E3C;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
       <div style="font-weight:700;font-size:14px;color:#2E7D32;margin-bottom:8px">&#9729; 2. Sync cloud</div>
-      <div style="font-size:13px;line-height:1.8">Mode &eacute;dition &rarr; <strong>&#9729; Sync cloud</strong> &rarr; URL Firebase + Cl&eacute; API &rarr; Connecter.<br>Sauvegarde auto sur tous les appareils.</div>
+      <div style="font-size:13px;line-height:1.8">Mode édition &rarr; <strong>&#9729; Sync cloud</strong> &rarr; URL Firebase + Clé API &rarr; Connecter.<br>Sauvegarde auto sur tous les appareils.</div>
     </div>
     <div style="background:#E3F2FD;border-left:4px solid #1565C0;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
       <div style="font-weight:700;font-size:14px;color:#1565C0;margin-bottom:8px">&#128247; 3. Image</div>
       <div style="font-size:13px;line-height:1.8"><a href="https://imgur.com" target="_blank" style="color:#1565C0;font-weight:600">imgur.com</a> &rarr; uploader &rarr; clic droit &rarr; Copier l'adresse &rarr; coller dans le champ Image.</div>
     </div>
     <div style="background:#FFF3E0;border-left:4px solid #E65100;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px">
-      <div style="font-weight:700;font-size:14px;color:#E65100;margin-bottom:8px">&#127909; 4. Vid&eacute;o YouTube</div>
-      <div style="font-size:13px;line-height:1.8">YouTube &rarr; Partager &rarr; Copier le lien &rarr; coller dans le champ Vid&eacute;o.</div>
+      <div style="font-weight:700;font-size:14px;color:#E65100;margin-bottom:8px">&#127909; 4. Vidéo YouTube</div>
+      <div style="font-size:13px;line-height:1.8">YouTube &rarr; Partager &rarr; Copier le lien &rarr; coller dans le champ Vidéo.</div>
     </div>
     <div style="background:#F3E5F5;border-left:4px solid #6A1B9A;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:20px">
       <div style="font-weight:700;font-size:14px;color:#6A1B9A;margin-bottom:8px">&#128196; 5. Document PDF</div>
@@ -186,7 +186,7 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
     </div>
     <div style="margin-bottom:8px">
       <label style="font-size:12px;color:#555;display:block;margin-bottom:4px">Mot de passe</label>
-      <input id="adm-pwd" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px" onkeydown="if(event.key==='Enter')chkAdmin()">
+      <input id="adm-pwd" type="password" placeholder="••••••••" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #e0e0e0;font-size:13px" onkeydown="if(event.key==='Enter')chkAdmin()">
     </div>
     <div id="adm-err" style="display:none;color:#D32F2F;font-size:12px;margin-bottom:8px;padding:6px 10px;background:#FFEBEE;border-radius:6px"></div>
     <div style="display:flex;gap:8px;margin-top:12px">
@@ -260,11 +260,12 @@ var agenda = [
   {id:3, type:'AG FO', date:'25 juin 2026', title:'Assembl\u00e9e g\u00e9n\u00e9rale FO', lieu:'Salle du personnel'},
   {id:4, type:'CSSCT', date:'1 juil 2026', title:'R\u00e9union CSSCT', lieu:'Visio-conf\u00e9rence'}
 ];
+// ——— INFOS avec docs:[] par section ———
 var infos = [
-  {id:1, title:'Cong\u00e9s et absences', items:['Cong\u00e9s pay\u00e9s : 2,5 jours/mois', 'RTT selon accord', 'Cong\u00e9s familiaux', 'Cong\u00e9 maternit\u00e9 / paternit\u00e9']},
-  {id:2, title:'Salaires et primes', items:['Grille salariale consultable', 'Prime de nuit revaloris\u00e9e (2026)', '13\u00e8me mois selon anciennet\u00e9', 'Tickets restaurant (d\u00e8s 20h/semaine)']},
-  {id:3, title:'Conditions de travail', items:['Droit d\u2019alerte en cas de danger', 'Saisine de la CSSCT', 'Registre des accidents du travail', 'Droit \u00e0 la d\u00e9connexion']},
-  {id:4, title:'Repr\u00e9sentation syndicale', items:['Droit de se syndiquer librement', 'Protection des \u00e9lus', 'Heures de d\u00e9l\u00e9gation', 'Affichage syndical autoris\u00e9']}
+  {id:1, title:'Cong\u00e9s et absences', items:['Cong\u00e9s pay\u00e9s : 2,5 jours/mois', 'RTT selon accord', 'Cong\u00e9s familiaux', 'Cong\u00e9 maternit\u00e9 / paternit\u00e9'], docs:[]},
+  {id:2, title:'Salaires et primes', items:['Grille salariale consultable', 'Prime de nuit revaloris\u00e9e (2026)', '13\u00e8me mois selon anciennet\u00e9', 'Tickets restaurant (d\u00e8s 20h/semaine)'], docs:[]},
+  {id:3, title:'Conditions de travail', items:['Droit d\u2019alerte en cas de danger', 'Saisine de la CSSCT', 'Registre des accidents du travail', 'Droit \u00e0 la d\u00e9connexion'], docs:[]},
+  {id:4, title:'Repr\u00e9sentation syndicale', items:['Droit de se syndiquer librement', 'Protection des \u00e9lus', 'Heures de d\u00e9l\u00e9gation', 'Affichage syndical autoris\u00e9'], docs:[]}
 ];
 var sondages = [
   {id:1, title:'Satisfaction conditions de travail 2026', status:'actif', reponses:47, date:'20 mai 2026'},
@@ -377,7 +378,13 @@ function applyData(d) {
   if (d.elus && d.elus.length) elus = d.elus;
   if (d.docs && d.docs.length) docs = d.docs;
   if (d.agenda && d.agenda.length) agenda = d.agenda;
-  if (d.infos && d.infos.length) infos = d.infos;
+  if (d.infos && d.infos.length) {
+    infos = d.infos;
+    // Migration : ajouter docs:[] aux anciennes entrées qui n'en ont pas
+    for (var _i = 0; _i < infos.length; _i++) {
+      if (!infos[_i].docs) infos[_i].docs = [];
+    }
+  }
   if (d.sondages && d.sondages.length) sondages = d.sondages;
   if (d.newsletters && d.newsletters.length) newsletters = d.newsletters;
   if (d.footerText) footerText = d.footerText;
@@ -897,11 +904,13 @@ function tContact() {
   return h;
 }
 
+// ——— INFOS GÉNÉRALES — avec support documents par section ———
 function tInfos() {
-  var h = '<div style="background:' + LR + ';border:0.5px solid ' + R + ';border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:' + DR + ';line-height:1.7"><strong>Pour toute question sp\u00e9cifique,</strong> contactez vos \u00e9lus ou utilisez le chatbot FO.</div>';
-  h += addB("infos.push({id:nid(),title:'Nouvelle section',items:['Nouvel \u00e9l\u00e9ment']});renderTab()", "Ajouter une section");
+  var h = '<div style="background:' + LR + ';border:0.5px solid ' + R + ';border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:' + DR + ';line-height:1.7"><strong>Pour toute question sp\u00e9cifique,</strong> contactez vos \u00e9lus.</div>';
+  h += addB("infos.push({id:nid(),title:'Nouvelle section',items:['Nouvel \u00e9l\u00e9ment'],docs:[]});renderTab()", "Ajouter une section");
   for (var i = 0; i < infos.length; i++) {
     var s = infos[i];
+    if (!s.docs) s.docs = [];
     h += '<div class="card"' + (editMode ? '' : ' style="cursor:pointer" onclick="openInfo=(openInfo===' + i + '?null:' + i + ');renderTab()"') + '>';
     h += '<div style="display:flex;justify-content:space-between;align-items:center">';
     h += '<div style="display:flex;gap:10px;align-items:center;flex:1"><span style="font-size:20px;color:' + R + '">&#128203;</span>';
@@ -915,6 +924,7 @@ function tInfos() {
     h += '</div>';
     if (editMode || openInfo === i) {
       h += '<div style="margin-top:12px;border-top:0.5px solid #e0e0e0;padding-top:12px">';
+      // ——— Liste des points ———
       for (var j = 0; j < s.items.length; j++) {
         h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="color:' + G + ';flex-shrink:0">&#10003;</span>';
         if (editMode) {
@@ -925,7 +935,49 @@ function tInfos() {
         }
         h += '</div>';
       }
-      if (editMode) h += '<button onclick="infos[' + i + '].items.push(\'Nouvel \u00e9l\u00e9ment\');saveToStorage();renderTab()" style="font-size:12px;color:' + G + ';background:' + LG + ';border:1px dashed ' + G + ';border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">+ Ajouter</button>';
+      if (editMode) h += '<button onclick="infos[' + i + '].items.push(\'Nouvel \u00e9l\u00e9ment\');saveToStorage();renderTab()" style="font-size:12px;color:' + G + ';background:' + LG + ';border:1px dashed ' + G + ';border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit;margin-bottom:10px">+ Ajouter un \u00e9l\u00e9ment</button>';
+      // ——— Documents attachés ———
+      if (s.docs.length > 0 || editMode) {
+        h += '<div style="margin-top:10px;border-top:0.5px solid #e8e8e8;padding-top:10px">';
+        h += '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;display:flex;align-items:center;gap:6px">&#128196; Documents attach\u00e9s <span style="font-size:11px;color:#9e9e9e;font-weight:400">(' + s.docs.length + ')</span></div>';
+        for (var k = 0; k < s.docs.length; k++) {
+          var doc = s.docs[k];
+          h += '<div style="background:#f9f9f9;border:1px solid #e8e8e8;border-radius:8px;padding:10px 12px;margin-bottom:8px">';
+          if (editMode) {
+            // Bouton supprimer
+            h += '<div style="display:flex;justify-content:flex-end;margin-bottom:6px">';
+            h += '<button onclick="infos[' + i + '].docs.splice(' + k + ',1);saveToStorage();renderTab()" class="del-b">&#10005; Supprimer</button>';
+            h += '</div>';
+            // Champs édition
+            h += '<div style="display:flex;flex-direction:column;gap:7px">';
+            h += '<input class="ef" value="' + esc(doc.title||'') + '" placeholder="Titre du document" style="width:100%;font-size:13px;font-weight:500" oninput="infos[' + i + '].docs[' + k + '].title=this.value">';
+            // Image
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">';
+            h += '<span style="font-size:12px;color:#555;width:52px;flex-shrink:0">&#128247; Image</span>';
+            h += '<input class="ef" value="' + esc(doc.imageUrl||'') + '" placeholder="URL image" style="flex:1;min-width:100px" oninput="infos[' + i + '].docs[' + k + '].imageUrl=this.value">';
+            h += '<label style="padding:4px 8px;background:' + R + ';color:#fff;border-radius:5px;cursor:pointer;font-size:11px;white-space:nowrap">&#128193; Parcourir<input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(this,\'infos[' + i + '].docs[' + k + '].imageUrl=__VALUE__\')"></label>';
+            h += '</div>';
+            // Lien
+            h += '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">';
+            h += '<span style="font-size:12px;color:#555;width:52px;flex-shrink:0">&#128279; Lien</span>';
+            h += '<input class="ef" value="' + esc(doc.linkUrl||'') + '" placeholder="URL (PDF, Google Drive...)" style="flex:1;min-width:100px" oninput="infos[' + i + '].docs[' + k + '].linkUrl=this.value">';
+            h += '<input class="ef" value="' + esc(doc.linkLabel||'T\u00e9l\u00e9charger') + '" placeholder="Texte bouton" style="width:120px" oninput="infos[' + i + '].docs[' + k + '].linkLabel=this.value">';
+            h += '</div>';
+            h += '</div>';
+          } else {
+            h += '<div style="font-size:13px;font-weight:500;margin-bottom:6px;color:#424242">&#128196; ' + esc(doc.title||'Document') + '</div>';
+          }
+          // Aperçu image
+          if (doc.imageUrl) h += '<img src="' + escH(doc.imageUrl) + '" style="width:100%;max-height:300px;object-fit:contain;border-radius:6px;margin-top:8px;background:#f0f0f0" onerror="this.style.display=\'none\'">';
+          // Bouton lien
+          if (doc.linkUrl) h += '<div style="margin-top:8px"><a href="' + escH(doc.linkUrl) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:' + LR + ';color:' + R + ';border:1px solid ' + R + ';border-radius:6px;text-decoration:none;font-size:12px;font-weight:500" onclick="event.stopPropagation()">&#11015; ' + esc(doc.linkLabel||'T\u00e9l\u00e9charger') + '</a></div>';
+          h += '</div>';
+        }
+        if (editMode) {
+          h += '<button onclick="if(!infos[' + i + '].docs)infos[' + i + '].docs=[];infos[' + i + '].docs.push({id:nid(),title:\'Nouveau document\',imageUrl:\'\',linkUrl:\'\',linkLabel:\'T\u00e9l\u00e9charger\'});saveToStorage();renderTab()" style="font-size:12px;color:#1565C0;background:#E3F2FD;border:1px dashed #1565C0;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:inherit">+ Ajouter un document</button>';
+        }
+        h += '</div>';
+      }
       h += '</div>';
     }
     h += '</div>';
