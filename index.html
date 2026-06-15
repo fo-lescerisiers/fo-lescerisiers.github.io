@@ -20,12 +20,58 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .add-b{display:flex;align-items:center;gap:6px;padding:8px 16px;background:#E8F5E9;color:#388E3C;border:1px dashed #388E3C;border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:12px;width:100%;font-family:inherit}
 .del-b{background:#ffebee;border:1px solid #D32F2F;border-radius:6px;cursor:pointer;color:#D32F2F;padding:3px 8px;font-size:12px;font-family:inherit}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999}
+@keyframes clubBlink{0%,100%{opacity:1}50%{opacity:.35}}
 #toast{position:fixed;bottom:24px;right:24px;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
 
 <div id="toast"></div>
+
+<!-- BOUTON FLOTTANT CHAT MÉDECIN -->
+<div id="search-btn" onclick="toggleSearch()" title="Rechercher sur le site" style="position:fixed;bottom:24px;right:24px;width:58px;height:58px;border-radius:50%;background:#D32F2F;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;transition:transform .2s">
+  <svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="62" rx="26" ry="22" fill="#fff"/>
+    <ellipse cx="50" cy="68" rx="20" ry="16" fill="#f0f0f0"/>
+    <rect x="47" y="58" width="6" height="10" rx="2" fill="#D32F2F"/>
+    <rect x="44" y="61" width="12" height="5" rx="2" fill="#D32F2F"/>
+    <ellipse cx="50" cy="42" rx="20" ry="18" fill="#f5c07a"/>
+    <ellipse cx="30" cy="28" rx="7" ry="10" fill="#f5c07a" transform="rotate(-15 30 28)"/>
+    <ellipse cx="70" cy="28" rx="7" ry="10" fill="#f5c07a" transform="rotate(15 70 28)"/>
+    <ellipse cx="30" cy="28" rx="4" ry="6" fill="#e8a0a0" transform="rotate(-15 30 28)"/>
+    <ellipse cx="70" cy="28" rx="4" ry="6" fill="#e8a0a0" transform="rotate(15 70 28)"/>
+    <ellipse cx="42" cy="42" rx="4" ry="4.5" fill="#2d2d2d"/>
+    <ellipse cx="58" cy="42" rx="4" ry="4.5" fill="#2d2d2d"/>
+    <circle cx="43.5" cy="40.5" r="1.2" fill="#fff"/>
+    <circle cx="59.5" cy="40.5" r="1.2" fill="#fff"/>
+    <ellipse cx="50" cy="48" rx="3" ry="2" fill="#c47"/>
+    <line x1="28" y1="47" x2="44" y2="49" stroke="#888" stroke-width="1.2"/>
+    <line x1="28" y1="51" x2="44" y2="50" stroke="#888" stroke-width="1.2"/>
+    <line x1="56" y1="49" x2="72" y2="47" stroke="#888" stroke-width="1.2"/>
+    <line x1="56" y1="50" x2="72" y2="51" stroke="#888" stroke-width="1.2"/>
+    <path d="M44 52 Q50 57 56 52" fill="none" stroke="#c47" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M38 58 Q34 72 42 74 Q50 76 50 70" fill="none" stroke="#9E9E9E" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="50" cy="70" r="3.5" fill="#9E9E9E"/>
+    <rect x="32" y="28" width="36" height="8" rx="4" fill="#fff"/>
+    <rect x="38" y="22" width="24" height="10" rx="5" fill="#fff"/>
+    <rect x="46" y="20" width="8" height="4" rx="2" fill="#D32F2F"/>
+  </svg>
+</div>
+
+<!-- PANNEAU DE RECHERCHE -->
+<div id="search-panel" style="display:none;position:fixed;bottom:92px;right:24px;width:340px;max-width:calc(100vw - 48px);background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:901;overflow:hidden">
+  <div style="background:#D32F2F;padding:14px 16px;display:flex;align-items:center;gap:10px">
+    <span style="font-size:18px">&#128269;</span>
+    <span style="color:#fff;font-weight:600;font-size:14px;flex:1">Recherche sur le site</span>
+    <button onclick="toggleSearch()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:inherit">&#10005;</button>
+  </div>
+  <div style="padding:12px 14px;border-bottom:1px solid #f0f0f0">
+    <input id="search-input" type="text" placeholder="Chercher dans actualités, docs, agenda..." oninput="doSearch(this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1.5px solid #e0e0e0;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#D32F2F'" onblur="this.style.borderColor='#e0e0e0'">
+  </div>
+  <div id="search-results" style="max-height:360px;overflow-y:auto;padding:8px 0">
+    <div style="text-align:center;color:#9e9e9e;font-size:13px;padding:24px">Tapez pour rechercher…</div>
+  </div>
+</div>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this.files[0])">
 <div id="b-alert"></div>
 <div id="b-edit"></div>
@@ -33,15 +79,15 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
 <header style="background:#D32F2F">
   <div style="max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:14px">
-      <svg width="64" height="64" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="49" fill="#D32F2F"/>
+      <svg width="90" height="90" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="58" fill="#D32F2F"/>
         <defs>
-          <path id="tc" d="M18,42 A34,34 0 0,1 82,42"/>
-          <path id="bc" d="M16,60 A36,36 0 0,0 84,60"/>
+          <path id="tc" d="M10,52 A52,52 0 0,1 110,52"/>
+          <path id="bc" d="M12,70 A50,50 0 0,0 108,70"/>
         </defs>
-        <text fill="black" font-size="9.5" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#tc" startOffset="50%" text-anchor="middle">vétérinaires et ASV</textPath></text>
-        <text x="50" y="62" text-anchor="middle" fill="white" font-size="34" font-weight="900" font-style="italic" font-family="Arial Black,sans-serif">FO</text>
-        <text fill="black" font-size="10" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#bc" startOffset="50%" text-anchor="middle">les cerisiers</textPath></text>
+        <text fill="black" font-size="11" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#tc" startOffset="50%" text-anchor="middle">vétérinaires et ASV</textPath></text>
+        <text x="60" y="74" text-anchor="middle" fill="white" font-size="40" font-weight="900" font-style="italic" font-family="Arial Black,sans-serif">FO</text>
+        <text fill="black" font-size="11.5" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#bc" startOffset="50%" text-anchor="middle">les cerisiers</textPath></text>
       </svg>
       <div>
         <div style="color:#fff;font-size:20px;font-weight:900">FO CSE</div>
@@ -244,9 +290,12 @@ var alerts = [
   {id:2, level:'warning', title:'Alerte \u00e9conomique \u2014 Rumeurs de cession', date:'15 mai 2026', desc:'FO exige la convocation d\u2019un CSE extraordinaire.'}
 ];
 var elus = [
-  {id:1, initials:'MD', name:'Marie Dupont', role:'D\u00e9l\u00e9gu\u00e9e Syndicale FO', domain:'N\u00e9gociations, NAO, salaires', email:'marie.dupont@fo-cerisiers.fr', phone:'06 12 34 56 78'},
-  {id:2, initials:'PM', name:'Pierre Martin', role:'\u00c9lu CSE Titulaire', domain:'Conditions de travail, CSSCT', email:'pierre.martin@fo-cerisiers.fr', phone:'06 98 76 54 32'},
-  {id:3, initials:'SL', name:'Sophie Leblanc', role:'\u00c9lue CSE Titulaire', domain:'Formation, \u00e9galit\u00e9 professionnelle', email:'sophie.leblanc@fo-cerisiers.fr', phone:'06 11 22 33 44'}
+  {id:1, initials:'GT', name:'Gaëlle Trotot', role:'Déléguée Syndicale FO — Élue CSE Titulaire', domain:'Négociations, NAO, salaires', email:'cse.evidensia.fo@gmail.com', phone:''},
+  {id:2, initials:'JP', name:'Jérôme Pocholle', role:'Formation, égalité professionnelle, SSCT, logement, délégué syndical', domain:'Négociations, NAO, salaires', email:'cse.evidensia.fo@gmail.com', phone:''},
+  {id:3, initials:'AD', name:'Amélie Denis', role:'Déléguée Syndicale FO — Élue CSE Titulaire', domain:'Négociations, NAO, salaires, SSCT', email:'cse.evidensia.fo@gmail.com', phone:''},
+  {id:4, initials:'AM', name:'Audrey Madoz', role:'Élue CSE Titulaire', domain:'Élue titulaire CSE', email:'cse.evidensia.fo@gmail.com', phone:''},
+  {id:5, initials:'CR', name:'Céline Racina', role:'Élue CSE Titulaire — CSSCT', domain:'Élue titulaire CSE, santé sécurité au travail', email:'cse.evidensia.fo@gmail.com', phone:''},
+  {id:6, initials:'AC', name:'Alexandre Camus', role:'Élu suppléant', domain:'Commission économique', email:'cse.evidensia.fo@gmail.com', phone:''}
 ];
 var docs = [
   {id:1, cat:'PV CSE', title:'PV CSE \u2014 Mai 2026', date:'22 mai 2026', content:'', imageUrl:'', linkUrl:'', linkLabel:'T\u00e9l\u00e9charger'},
@@ -262,11 +311,92 @@ var agenda = [
 ];
 // ——— INFOS avec docs:[] par section ———
 var infos = [
-  {id:1, title:'Cong\u00e9s et absences', items:['Cong\u00e9s pay\u00e9s : 2,5 jours/mois', 'RTT selon accord', 'Cong\u00e9s familiaux', 'Cong\u00e9 maternit\u00e9 / paternit\u00e9'], docs:[]},
-  {id:2, title:'Salaires et primes', items:['Grille salariale consultable', 'Prime de nuit revaloris\u00e9e (2026)', '13\u00e8me mois selon anciennet\u00e9', 'Tickets restaurant (d\u00e8s 20h/semaine)'], docs:[]},
-  {id:3, title:'Conditions de travail', items:['Droit d\u2019alerte en cas de danger', 'Saisine de la CSSCT', 'Registre des accidents du travail', 'Droit \u00e0 la d\u00e9connexion'], docs:[]},
-  {id:4, title:'Repr\u00e9sentation syndicale', items:['Droit de se syndiquer librement', 'Protection des \u00e9lus', 'Heures de d\u00e9l\u00e9gation', 'Affichage syndical autoris\u00e9'], docs:[]}
+  {id:1, title:'Congés et absences', docs:[], items:[
+    'Congés payés : 2,5 jours ouvrables par mois travaillé (30 jours/an)',
+    'Période principale : 1er mai au 31 octobre (min. 12 jours ouvrables obligatoires)',
+    'Fractionnement : +2 jours si 1 semaine prise hors période légale, +1 jour pour la 2ème',
+    'Report de congés : possible sur CET ou en cas de maladie (15 mois max.)',
+    'Congé maternité : 16 semaines (6 avant + 10 après) ou 26 semaines (3ème enfant ou +)',
+    'Congé paternité : 25 jours calendaires (32 en cas de naissances multiples)',
+    'Congé adoption : 16 semaines (jusqu’à 22 semaines selon situation)',
+    'Congé parental : tout salarié avec 1 an d’ancienneté à la naissance',
+    'Congé proche aidant : 3 mois renouvelables, limite 1 an sur toute la carrière',
+    'Congé enfant malade : 12 jours/an (20 pour plusieurs enfants) — 3 jours rémunérés',
+    'Mariage : 5 jours | PACS : 4 jours | Naissance/adoption : 3 jours',
+    'Décès conjoint/concubin/PACS : 6 jours | Décès enfant : 12 jours (14j si < 25 ans)',
+    'Décès père/mère/frère/sœur/beau-parent/grands-parents : 3 jours',
+    'Annonce handicap ou cancer d’un enfant : 5 jours | Déménagement : 1 jour',
+    '11 jours fériés chômés payés : 1er jan, L. Pâques, 8 mai, Ascension, L. Pentecôte, 14 juil, Assomption, Toussaint, 11 nov, Noël',
+    'Journée de solidarité : 7h (lundi de Pentecôte par défaut, modifiable par accord)',
+    'Compte épargne-temps (CET) disponible si mis en place par l’employeur'
+  ]},
+  {id:2, title:'Salaires et primes', docs:[], items:[
+    'Valeur du point conventionnel 2025 : 17,75 € (fixée annuellement par la CPPNI)',
+    'Entretien/nettoyage (éch. 1, coeff. 105) : 1 863,75 € brut/mois',
+    'Accueil/secrétariat (éch. 2, coeff. 108) : 1 917 € brut/mois',
+    'Auxiliaire Vétérinaire AV3 (éch. 3, coeff. 110) : 1 952,50 € brut/mois',
+    'Auxiliaire Vétérinaire AV4 — CQP AVQ (éch. 4, coeff. 113) : 2 005,75 € brut/mois',
+    'ASV titulaire APForm (éch. 5, coeff. 120) : 2 130 € brut/mois',
+    'CQP (CCV, TSV, ADE, ACC) : +3 points de coefficient = +53,25 €/mois',
+    'Vétérinaire non-cadre (éch. 1, coeff. 132) : 2 343 € | Cadre débutant (éch. 2) : 2 698 €',
+    'Cadre confirmé A (éch. 3) : 3 230,50 € | Cadre confirmé B (éch. 4) : 3 727,50 € | Spécialiste (éch. 5) : 4 260 €',
+    'Majoration nuit / dimanche / jour férié : +20 % du taux horaire (non cumulables)',
+    'Astreinte non-vétérinaires : +25 % | Astreinte dérangée non-vét. : +50 %',
+    'Heures supplémentaires : +25 % pour les 8 premières heures, +50 % au-delà',
+    'Heures complémentaires (temps partiel) : +10 % dès la 1ère heure, +25 % au-delà du 1/10 du contrat',
+    'Complément d’heures par avenant : +15 % (hors héberge préavis)',
+    'Prime de remplacement veto : +10 % du salaire si remplacement responsable DPE ≥ 15 jours consécutifs',
+    'Négociation annuelle obligatoire (NAO) des salaires'
+  ]},
+  {id:3, title:'Conditions de travail', docs:[], items:[
+    'Durée légale : 35h/semaine, réparties sur 3 à 6 jours',
+    'Durée quotidienne max : 10h (12h par CCN ; 15h pour vétérinaires en urgence)',
+    'Amplitude journalière max : 12h (15h pour vétérinaires en circonstances exceptionnelles)',
+    'Repos quotidien : 11h consécutives minimum (9h pour vétérinaires avec récupération 2h dans 2 mois)',
+    'Pause obligatoire : 20 min après 6h de travail consécutives (non rémunérée)',
+    'Contingent HS : 280h/an (vétérinaires) | 220h/an (non-vétérinaires)',
+    'Repos compensateur de remplacement : possible avec mêmes majorations que les HS',
+    'Temps partiel : durée min. 8h/mois (éch. 1) ou 16h/semaine (éch. 2 à 5)',
+    'Durée min. quotidienne temps partiel : 3h30 (sauf éch. 1 : 1h min.)',
+    'Aménagement annuel du temps de travail : plage de 28h à 42h/semaine (1 607h/an)',
+    'Travail de nuit : défini entre 22h et 7h, avec majorations et protections spécifiques (art. 36 CCN)',
+    'Astreinte : ne compte pas comme temps de travail effectif — indemnité obligatoire',
+    'Maladie : ne constitue pas une cause de licenciement (sauf perturbation > 4 mois sur 12)',
+    'Accident du travail : déclaration par l’employeur sous 48h à la CPAM',
+    'Prévoyance maladie-décès : régime collectif obligatoire de branche (Annexe 4 CCN)',
+    'Mutuelle santé complémentaire collective obligatoire (Annexe 3 CCN)',
+    'Période d’essai CDI : 2 mois non-cadres, 4 mois cadres — non renouvelable',
+    'Égalité professionnelle femmes/hommes : égalité salariale et de carrière garantie'
+  ]},
+  {id:4, title:'Représentation syndicale', docs:[], items:[
+    'Droit syndical reconnu dans tous les établissements vétérinaires (art. 6 CCN)',
+    'Aucune discrimination autorisée liée à l’activité syndicale (embauche, salaire, carrière)',
+    'Sections syndicales et délégués syndicaux : selon dispositions légales',
+    'Absences réunions paritaires : rémunérées, limite 2 salariés/OS, préavis 1 mois',
+    'Heures de délégation CSE : selon effectif, maintien intégral du salaire',
+    'Formation élus CSE : prise en charge par l’employeur — stage économique 5 jours',
+    'CPPNI : Commission Paritaire Permanente de Négociation et d’Interprétation',
+    'CPNEFP : Commission Paritaire Nationale Emploi-Formation (priorités formation, CQP...)',
+    'Protection des représentants du personnel : statut protégé contre le licenciement',
+    'Affichage syndical autorisé dans les établissements'
+  ]},
+  {id:5, title:'Formation professionnelle', docs:[], items:[
+    'Entretien professionnel : tous les 2 ans (bilan récapitulatif tous les 6 ans)',
+    'Titre ASV (Auxiliaire Spécialisé Vétérinaire) : 2 ans, 805h, 4 blocs de compétences — certifié APForm',
+    'Accès ASV : apprentissage, contrat de professionnalisation ou VAE',
+    'CQP reconnus par la branche : CCV, TSV, ADE, ACC, ACE — délivrés par APForm',
+    'CPF (Compte Personnel de Formation) : droit personnel, utilisable en/hors temps de travail',
+    'CPF de transition : pour changer de métier (Transition Pro — région domicile ou travail)',
+    'Plan de développement des compétences : obligation employeur d’adaptation au poste',
+    'Formation hors temps de travail : max 30h/an par salarié (ou 2 % forfait jours)',
+    'Contribution conventionnelle formation : 0,45 % masse salariale (< 11 sal.) | 0,60 % (≥ 11 sal.)',
+    'Départ volontaire retraite : indemnité dès 10 ans ancienneté (0,5 à 2 mois selon ancienneté)',
+    'Préavis licenciement/démission : selon ancienneté et catégorie (art. 68-69 CCN)',
+    'Indemnité de licenciement : 1/4 mois/an jusqu’à 10 ans, 1/3 mois/an au-delà',
+    'Non-concurrence vétérinaires : max 24 mois, rayon 25 km (3 km > 100 000 hab.) — avec indemnité mensuelle'
+  ]}
 ];
+
 var sondages = [
   {id:1, title:'Satisfaction conditions de travail 2026', status:'actif', reponses:47, date:'20 mai 2026'},
   {id:2, title:'Priorit\u00e9s NAO \u2014 Vos attentes', status:'clos', reponses:89, date:'1 mars 2026'}
@@ -634,6 +764,7 @@ function renderSocial() {
   } else {
     if (socialFacebook) h += '<a href="' + escH(socialFacebook) + '" target="_blank" rel="noopener" title="Facebook" style="color:#fff;display:flex;align-items:center;opacity:.9">' + fbIcon + '</a>';
     if (socialInstagram) h += '<a href="' + escH(socialInstagram) + '" target="_blank" rel="noopener" title="Instagram" style="color:#fff;display:flex;align-items:center;opacity:.9">' + igIcon + '</a>';
+    h += '<a href="https://cselescerisiers.com/login" target="_blank" rel="noopener" title="Club employés" style="color:#fff;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;white-space:nowrap;text-decoration:none;animation:clubBlink 1.4s ease-in-out infinite">&#127968; Club employés</a>';
   }
   z.innerHTML = h;
 }
@@ -652,6 +783,7 @@ function renderBanners() {
     editHtml += '<span id="cloud-dot" onclick="openCloud()" style="width:12px;height:12px;border-radius:50%;display:inline-block;cursor:pointer;flex-shrink:0;border:2px solid rgba(255,255,255,.4);background:#9E9E9E" title="Cloud"></span>';
     editHtml += '<button onclick="openCloud()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#9729; Sync cloud</button>';
     editHtml += '<button onclick="document.getElementById(\'modal-users\').style.display=\'flex\'" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#128101; Utilisateurs</button>';
+    editHtml += '<button onclick="exportData()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#128228; Exporter</button>';
     editHtml += '<button onclick="document.getElementById(\'import-file\').click()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit">&#128229; Importer</button>';
     editHtml += '<button onclick="setEdit(false)" style="background:rgba(0,0,0,.2);border:none;color:#fff;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit">Quitter</button>';
     editHtml += '</div>';
@@ -1156,6 +1288,93 @@ function renderTab() {
   var el = document.getElementById('tab-content');
   if (el) el.innerHTML = (map[currentTab] || tAccueil)();
 }
+
+// ——— RECHERCHE ———
+var searchOpen = false;
+function goResult(tab) { setTab(tab); toggleSearch(); }
+function toggleSearch() {
+  searchOpen = !searchOpen;
+  var panel = document.getElementById('search-panel');
+  var btn = document.getElementById('search-btn');
+  panel.style.display = searchOpen ? 'block' : 'none';
+  btn.style.transform = searchOpen ? 'scale(0.9)' : 'scale(1)';
+  if (searchOpen) {
+    setTimeout(function(){ document.getElementById('search-input').focus(); }, 80);
+    document.getElementById('search-input').value = '';
+    document.getElementById('search-results').innerHTML = '<div style="text-align:center;color:#9e9e9e;font-size:13px;padding:24px">Tapez pour rechercher…</div>';
+  }
+}
+function doSearch(q) {
+  var box = document.getElementById('search-results');
+  q = (q || '').trim().toLowerCase();
+  if (q.length < 2) {
+    box.innerHTML = '<div style="text-align:center;color:#9e9e9e;font-size:13px;padding:24px">Tapez au moins 2 caractères…</div>';
+    return;
+  }
+  var results = [];
+  for (var i = 0; i < news.length; i++) {
+    var n = news[i];
+    if ((n.title+' '+n.content+' '+n.cat).toLowerCase().indexOf(q) >= 0)
+      results.push({icon:'&#128240;', cat:'Actualité', title:n.title, sub:n.date, tab:'accueil'});
+  }
+  for (var i = 0; i < actions.length; i++) {
+    var a = actions[i];
+    if ((a.title+' '+a.desc).toLowerCase().indexOf(q) >= 0)
+      results.push({icon:'&#9889;', cat:'Action FO', title:a.title, sub:a.date, tab:'actions'});
+  }
+  for (var i = 0; i < alerts.length; i++) {
+    var a = alerts[i];
+    if ((a.title+' '+a.desc).toLowerCase().indexOf(q) >= 0)
+      results.push({icon:'&#128680;', cat:'Alerte', title:a.title, sub:a.date, tab:'alertes'});
+  }
+  for (var i = 0; i < docs.length; i++) {
+    var d = docs[i];
+    if ((d.title+' '+d.cat+' '+(d.content||'')).toLowerCase().indexOf(q) >= 0)
+      results.push({icon:'&#128196;', cat:'Document', title:d.title, sub:d.cat+' · '+d.date, tab:'documents'});
+  }
+  for (var i = 0; i < agenda.length; i++) {
+    var ev = agenda[i];
+    if ((ev.title+' '+ev.lieu+' '+ev.type).toLowerCase().indexOf(q) >= 0)
+      results.push({icon:'&#128197;', cat:'Agenda', title:ev.title, sub:ev.date+' · '+ev.lieu, tab:'agenda'});
+  }
+  for (var i = 0; i < elus.length; i++) {
+    var e = elus[i];
+    if ((e.name+' '+e.role+' '+e.domain).toLowerCase().indexOf(q) >= 0)
+      results.push({icon:'&#128100;', cat:'Élu', title:e.name, sub:e.role, tab:'contact'});
+  }
+  for (var i = 0; i < infos.length; i++) {
+    var s = infos[i];
+    var txt = s.title + ' ' + s.items.join(' ');
+    if (txt.toLowerCase().indexOf(q) >= 0)
+      results.push({icon:'&#128203;', cat:'Info', title:s.title, sub:s.items.length+' points', tab:'infos'});
+    for (var k = 0; k < (s.docs||[]).length; k++) {
+      var dd = s.docs[k];
+      if ((dd.title||'').toLowerCase().indexOf(q) >= 0)
+        results.push({icon:'&#128206;', cat:'Info · Document', title:dd.title, sub:'Dans : '+s.title, tab:'infos'});
+    }
+  }
+  if (!results.length) {
+    box.innerHTML = '<div style="text-align:center;padding:24px"><div style="font-size:28px;margin-bottom:8px">&#128049;</div><div style="color:#9e9e9e;font-size:13px">Aucun résultat pour <strong>« '+esc(q)+' »</strong></div></div>';
+    return;
+  }
+  var h = "";
+  for (var i = 0; i < results.length; i++) {
+    var r = results[i];
+    h += "<div onclick=\"goResult('" + r.tab + "');\" style=\"display:flex;gap:10px;align-items:flex-start;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f5f5f5\" onmouseover=\"this.style.background='#FFEBEE'\" onmouseout=\"this.style.background='#fff'\">";
+    h += "<span style=\"font-size:18px;flex-shrink:0;margin-top:1px\">" + r.icon + "</span>";
+    h += "<div style=\"flex:1;min-width:0\"><div style=\"font-size:13px;font-weight:500;color:#212121;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\">" + esc(r.title) + "</div>";
+    h += "<div style=\"font-size:11px;color:#9e9e9e;margin-top:2px\"><span style=\"background:#f5f5f5;border-radius:4px;padding:1px 5px;margin-right:4px\">" + esc(r.cat) + "</span>" + esc(r.sub) + "</div></div>";
+    h += "</div>";
+  }
+  h += "<div style=\"text-align:center;font-size:11px;color:#bbb;padding:8px\">" + results.length + " résultat" + (results.length > 1 ? "s" : "") + " trouvé" + (results.length > 1 ? "s" : "") + "</div>";
+  box.innerHTML = h;
+}
+document.addEventListener('click', function(e) {
+  if (!searchOpen) return;
+  var panel = document.getElementById('search-panel');
+  var btn = document.getElementById('search-btn');
+  if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) toggleSearch();
+});
 
 // ——— INIT ———
 loadFromStorage();
