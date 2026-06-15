@@ -514,6 +514,14 @@ function applyData(d) {
     for (var _i = 0; _i < infos.length; _i++) {
       if (!infos[_i].docs) infos[_i].docs = [];
     }
+    // Fusion : ajouter les sections CCN manquantes sans écraser les existantes
+    var defaultTitles = ['Congés et absences','Salaires et primes','Conditions de travail','Représentation syndicale','Formation professionnelle','Classification des emplois'];
+    var existingTitles = infos.map(function(s){ return s.title; });
+    for (var _j = 0; _j < defaultInfos.length; _j++) {
+      if (existingTitles.indexOf(defaultInfos[_j].title) < 0) {
+        infos.push(defaultInfos[_j]);
+      }
+    }
   }
   if (d.sondages && d.sondages.length) sondages = d.sondages;
   if (d.newsletters && d.newsletters.length) newsletters = d.newsletters;
@@ -1375,6 +1383,104 @@ document.addEventListener('click', function(e) {
   var btn = document.getElementById('search-btn');
   if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) toggleSearch();
 });
+
+// ——— DEFAULT INFOS (CCN 2025) ———
+var defaultInfos = [
+  {id:'ccn1', title:'Congés et absences', docs:[], items:[
+    'Congés payés : 2,5 jours ouvrables par mois travaillé (30 jours/an)',
+    'Période principale : 1er mai au 31 octobre (min. 12 jours ouvrables obligatoires)',
+    'Fractionnement : +2 jours si 1 semaine prise hors période légale, +1 jour pour la 2ème',
+    'Report de congés : possible sur CET ou en cas de maladie (15 mois max.)',
+    'Congé maternité : 16 semaines (6 avant + 10 après) ou 26 semaines (3ème enfant ou +)',
+    'Congé paternité : 25 jours calendaires (32 en cas de naissances multiples)',
+    'Congé adoption : 16 semaines (jusqu’à 22 semaines selon situation)',
+    'Congé parental : tout salarié avec 1 an d’ancienneté à la naissance',
+    'Congé proche aidant : 3 mois renouvelables, limite 1 an sur toute la carrière',
+    'Congé enfant malade : 12 jours/an (20 pour plusieurs enfants) — 3 jours rémunérés',
+    'Mariage : 5 jours | PACS : 4 jours | Naissance/adoption : 3 jours',
+    'Décès conjoint/concubin/PACS : 6 jours | Décès enfant : 12 jours (14j si < 25 ans)',
+    'Décès père/mère/frère/sœur/beau-parent/grands-parents : 3 jours',
+    'Annonce handicap ou cancer d’un enfant : 5 jours | Déménagement : 1 jour',
+    '11 jours fériés chômés payés : 1er jan, L. Pâques, 8 mai, Ascension, L. Pentecôte, 14 juil, Assomption, Toussaint, 11 nov, Noël',
+    'Journée de solidarité : 7h (lundi de Pentecôte par défaut, modifiable par accord)',
+    'Compte épargne-temps (CET) disponible si mis en place par l’employeur'
+  ]},
+  {id:'ccn2', title:'Salaires et primes', docs:[], items:[
+    'Valeur du point conventionnel 2025 : 17,75 € (fixée annuellement par la CPPNI)',
+    'Entretien/nettoyage (éch. 1, coeff. 105) : 1 863,75 € brut/mois',
+    'Accueil/secrétariat (éch. 2, coeff. 108) : 1 917 € brut/mois',
+    'Auxiliaire Vétérinaire AV3 (éch. 3, coeff. 110) : 1 952,50 € brut/mois',
+    'Auxiliaire Vétérinaire AV4 — CQP AVQ (éch. 4, coeff. 113) : 2 005,75 € brut/mois',
+    'ASV titulaire APForm (éch. 5, coeff. 120) : 2 130 € brut/mois',
+    'CQP (CCV, TSV, ADE, ACC) : +3 points de coefficient = +53,25 €/mois',
+    'Vétérinaire non-cadre (éch. 1, coeff. 132) : 2 343 € | Cadre débutant (éch. 2) : 2 698 €',
+    'Cadre confirmé A (éch. 3) : 3 230,50 € | Cadre confirmé B (éch. 4) : 3 727,50 € | Spécialiste (éch. 5) : 4 260 €',
+    'Majoration nuit / dimanche / jour férié : +20 % du taux horaire (non cumulables)',
+    'Astreinte non-vétérinaires : +25 % | Astreinte dérangée non-vét. : +50 %',
+    'Heures supplémentaires : +25 % pour les 8 premières heures, +50 % au-delà',
+    'Heures complémentaires (temps partiel) : +10 % dès la 1ère heure, +25 % au-delà du 1/10 du contrat',
+    'Prime de remplacement veto : +10 % du salaire si remplacement responsable DPE ≥ 15 jours consécutifs',
+    'Négociation annuelle obligatoire (NAO) des salaires'
+  ]},
+  {id:'ccn3', title:'Conditions de travail', docs:[], items:[
+    'Durée légale : 35h/semaine, réparties sur 3 à 6 jours',
+    'Durée quotidienne max : 10h (12h par CCN ; 15h pour vétérinaires en urgence)',
+    'Amplitude journalière max : 12h (15h pour vétérinaires en circonstances exceptionnelles)',
+    'Repos quotidien : 11h consécutives minimum (9h pour vétérinaires avec récupération 2h dans 2 mois)',
+    'Pause obligatoire : 20 min après 6h de travail consécutives (non rémunérée)',
+    'Contingent HS : 280h/an (vétérinaires) | 220h/an (non-vétérinaires)',
+    'Repos compensateur de remplacement : possible avec mêmes majorations que les HS',
+    'Temps partiel : durée min. 8h/mois (éch. 1) ou 16h/semaine (éch. 2 à 5)',
+    'Aménagement annuel du temps de travail : plage de 28h à 42h/semaine (1 607h/an)',
+    'Travail de nuit : défini entre 22h et 7h, avec majorations et protections spécifiques',
+    'Astreinte : ne compte pas comme temps de travail effectif — indemnité obligatoire',
+    'Maladie : ne constitue pas une cause de licenciement (sauf perturbation > 4 mois sur 12)',
+    'Accident du travail : déclaration par l’employeur sous 48h à la CPAM',
+    'Prévoyance maladie-décès : régime collectif obligatoire de branche (Annexe 4 CCN)',
+    'Mutuelle santé complémentaire collective obligatoire (Annexe 3 CCN)',
+    'Période d’essai CDI : 2 mois non-cadres, 4 mois cadres — non renouvelable',
+    'Égalité professionnelle femmes/hommes : égalité salariale et de carrière garantie'
+  ]},
+  {id:'ccn4', title:'Représentation syndicale', docs:[], items:[
+    'Droit syndical reconnu dans tous les établissements vétérinaires (art. 6 CCN)',
+    'Aucune discrimination autorisée liée à l’activité syndicale (embauche, salaire, carrière)',
+    'Sections syndicales et délégués syndicaux : selon dispositions légales',
+    'Absences réunions paritaires : rémunérées, limite 2 salariés/OS, préavis 1 mois',
+    'Heures de délégation CSE : selon effectif, maintien intégral du salaire',
+    'Formation élus CSE : prise en charge par l’employeur — stage économique 5 jours',
+    'CPPNI : Commission Paritaire Permanente de Négociation et d’Interprétation',
+    'CPNEFP : Commission Paritaire Nationale Emploi-Formation',
+    'Protection des représentants du personnel : statut protégé contre le licenciement',
+    'Affichage syndical autorisé dans les établissements'
+  ]},
+  {id:'ccn5', title:'Formation professionnelle', docs:[], items:[
+    'Entretien professionnel : tous les 2 ans (bilan récapitulatif tous les 6 ans)',
+    'Titre ASV (Auxiliaire Spécialisé Vétérinaire) : 2 ans, 805h, 4 blocs de compétences — certifié APForm',
+    'Accès ASV : apprentissage, contrat de professionnalisation ou VAE',
+    'CQP reconnus : CCV, TSV, ADE, ACC, ACE — délivrés par APForm',
+    'CPF : droit personnel, utilisable en/hors temps de travail',
+    'CPF de transition : pour changer de métier (Transition Pro)',
+    'Plan de développement des compétences : obligation employeur d’adaptation au poste',
+    'Contribution conventionnelle formation : 0,45 % (< 11 sal.) | 0,60 % (≥ 11 sal.)',
+    'Départ volontaire retraite : indemnité dès 10 ans ancienneté (0,5 à 2 mois selon ancienneté)',
+    'Indemnité de licenciement : 1/4 mois/an jusqu’à 10 ans, 1/3 mois/an au-delà',
+    'Non-concurrence vétérinaires : max 24 mois, rayon 25 km — avec indemnité mensuelle'
+  ]},
+  {id:'ccn6', title:'Classification des emplois', docs:[], items:[
+    'Entretien/nettoyage (éch. 1, coeff. 105) : 1 863,75 € brut/mois',
+    'Accueil/secrétariat (éch. 2, coeff. 108) : 1 917 € brut/mois',
+    'AV3 (éch. 3, coeff. 110) : 1 952,50 € | AV4/CQP AVQ (éch. 4, coeff. 113) : 2 005,75 €',
+    'ASV titulaire APForm (éch. 5, coeff. 120) : 2 130 € brut/mois',
+    'CQP (CCV, TSV, ADE, ACC) : +3 points de coeff. = +53,25 €/mois',
+    'Vétérinaire non-cadre (éch. 1, coeff. 132) : 2 343 €',
+    'Cadre débutant < 2 ans (éch. 2, coeff. 152) : 2 698 €',
+    'Cadre confirmé A > 2 ans (éch. 3, coeff. 182) : 3 230,50 €',
+    'Cadre confirmé B > 4 ans (éch. 4, coeff. 210) : 3 727,50 €',
+    'Cadre spécialiste (éch. 5, coeff. 240) : 4 260 €',
+    'Cadres autonomes forfait jours : 38 766 € (éch.2) à 61 344 € (éch.5) pour 216 jours/an',
+    'Valeur du point 2025 : 17,75 € (fixée annuellement par la CPPNI)'
+  ]}
+];
 
 // ——— INIT ———
 loadFromStorage();
