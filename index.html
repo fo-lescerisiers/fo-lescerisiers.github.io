@@ -21,11 +21,38 @@ nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .del-b{background:#ffebee;border:1px solid #D32F2F;border-radius:6px;cursor:pointer;color:#D32F2F;padding:3px 8px;font-size:12px;font-family:inherit}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999}
 @keyframes clubBlink{0%,100%{opacity:1}50%{opacity:.35}}
+@media print {
+  header, footer, nav, #b-alert, #b-edit, #search-btn, #search-panel,
+  .add-b, .del-b, button { display:none!important; }
+  body { background:#fff!important; }
+  .card { border:1px solid #ccc!important; break-inside:avoid; }
+  #print-header { display:block!important; }
+}
+#print-header { display:none; }
 #toast{position:fixed;bottom:24px;right:24px;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
 
+<div id="print-header" style="display:none;text-align:center;padding:16px 0 12px;border-bottom:2px solid #D32F2F;margin-bottom:20px">
+  <div style="display:flex;align-items:center;justify-content:center;gap:16px">
+    <svg width="60" height="60" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#D32F2F"/>
+      <defs>
+        <path id="ptc" d="M10,52 A52,52 0 0,1 110,52"/>
+        <path id="pbc" d="M12,70 A50,50 0 0,0 108,70"/>
+      </defs>
+      <text fill="black" font-size="11" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#ptc" startOffset="50%" text-anchor="middle">vétérinaires et ASV</textPath></text>
+      <text x="60" y="74" text-anchor="middle" fill="white" font-size="40" font-weight="900" font-style="italic" font-family="Arial Black,sans-serif">FO</text>
+      <text fill="black" font-size="11.5" font-family="Arial,sans-serif" font-weight="bold"><textPath href="#pbc" startOffset="50%" text-anchor="middle">les cerisiers</textPath></text>
+    </svg>
+    <div style="text-align:left">
+      <div style="font-size:20px;font-weight:900;color:#D32F2F">FO CSE Les Cerisiers</div>
+      <div style="font-size:13px;color:#555">Groupe Evidensia &middot; Vétérinaires &amp; ASV</div>
+      <div style="font-size:11px;color:#888;margin-top:2px">Imprimé le <span id="print-date"></span></div>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 
 <!-- BOUTON FLOTTANT CHAT MÉDECIN -->
@@ -416,7 +443,8 @@ var TABS = [
   {id:'documents', label:'Documents'},
   {id:'agenda', label:'Agenda'},
   {id:'newsletter', label:'Newsletter'},
-  {id:'sondages', label:'Sondages'}
+  {id:'sondages', label:'Sondages'},
+  {id:'numeros', label:'Numéros utiles'}
 ];
 
 // ——— HELPERS ———
@@ -495,6 +523,20 @@ function addB(fn, lbl) {
 function delB(fn) {
   if (!editMode) return '';
   return '<button class="del-b" onclick="' + fn + ';saveToStorage()">&#10005;</button>';
+}
+function moveB(arr, i, dir) {
+  var j = i + dir;
+  if (j < 0 || j >= arr.length) return;
+  var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  saveToStorage(); renderTab();
+}
+function mvB(arrName, i, dir) {
+  if (!editMode) return '';
+  var h = '<span style="display:inline-flex;flex-direction:column;gap:1px;margin-right:2px">';
+  h += '<button onclick="moveB(' + arrName + ',' + i + ',-1)" style="background:#f0f0f0;border:1px solid #ddd;border-radius:3px;cursor:pointer;font-size:9px;padding:1px 4px;line-height:1;font-family:inherit">▲</button>';
+  h += '<button onclick="moveB(' + arrName + ',' + i + ',1)" style="background:#f0f0f0;border:1px solid #ddd;border-radius:3px;cursor:pointer;font-size:9px;padding:1px 4px;line-height:1;font-family:inherit">▼</button>';
+  h += '</span>';
+  return h;
 }
 
 // ——— STORAGE ———
@@ -898,7 +940,7 @@ function tAccueil() {
       h += bdg(n.cat, n.cat==='Accord' ? G : n.cat==='CSE' ? '#1565C0' : R);
       h += '<span style="font-size:12px;color:#757575">' + esc(n.date) + '</span>';
     }
-    h += '</div>' + delB('news.splice(' + i + ',1);renderTab()') + '</div>';
+    h += '</div><div style="display:flex;align-items:center;gap:3px">' + mvB('news',i,0) + mvB('news',i,1) + delB('news.splice(' + i + ',1);renderTab()') + '</div></div>';
     if (editMode) {
       h += '<input class="ef" value="' + esc(n.title) + '" style="display:block;width:100%;font-size:15px;font-weight:500;margin-bottom:6px" oninput="news[' + i + '].title=this.value">';
     } else {
@@ -945,7 +987,7 @@ function tAlertes() {
       h += '<span>' + (a.level==='danger' ? '&#128308;' : '&#128992;') + '</span>';
       h += '<span style="font-weight:500;color:' + (a.level==='danger' ? DR : '#E65100') + '">' + esc(a.title) + '</span>';
     }
-    h += '</div>' + delB('alerts.splice(' + i + ',1);renderBanners();renderTab()') + '</div>';
+    h += '</div><div style="display:flex;align-items:center;gap:3px">' + mvB('alerts',i,0) + mvB('alerts',i,1) + delB('alerts.splice(' + i + ',1);renderBanners();renderTab()') + '</div></div>';
     if (editMode) {
       h += '<input class="ef" value="' + esc(a.date) + '" style="width:160px;font-size:12px;margin-bottom:6px;display:block" oninput="alerts[' + i + '].date=this.value">';
     } else {
@@ -986,7 +1028,7 @@ function tActions() {
       h += '<div style="font-size:15px;font-weight:500;margin-bottom:4px">' + esc(a.title) + '</div>';
     }
     h += txta(a.desc, 'actions[' + i + '].desc=this.value');
-    h += '</div>' + delB('actions.splice(' + i + ',1);renderTab()') + '</div></div>';
+    h += '</div><div style="display:flex;align-items:center;gap:3px">' + mvB('actions',i,0) + mvB('actions',i,1) + delB('actions.splice(' + i + ',1);renderTab()') + '</div></div></div>';
   }
   return h;
 }
@@ -998,7 +1040,7 @@ function tContact() {
   for (var i = 0; i < elus.length; i++) {
     var e = elus[i];
     h += '<div class="card">';
-    if (editMode) h += '<div style="display:flex;justify-content:flex-end;margin-bottom:6px">' + delB('elus.splice(' + i + ',1);renderTab()') + '</div>';
+    if (editMode) h += '<div style="display:flex;justify-content:flex-end;align-items:center;gap:3px;margin-bottom:6px">' + mvB('elus',i,0) + mvB('elus',i,1) + delB('elus.splice(' + i + ',1);renderTab()') + '</div>';
     h += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">';
     h += '<div style="width:44px;height:44px;border-radius:50%;background:' + R + ';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:14px;flex-shrink:0">';
     if (editMode) {
@@ -1060,7 +1102,7 @@ function tInfos() {
       h += '<span style="font-weight:500;font-size:15px">' + esc(s.title) + '</span>';
     }
     h += '</div>';
-    h += editMode ? delB('infos.splice(' + i + ',1);renderTab()') : '<span style="color:#757575">' + (openInfo===i ? '&#9650;' : '&#9660;') + '</span>';
+    h += editMode ? (mvB('infos',i,0) + mvB('infos',i,1) + delB('infos.splice(' + i + ',1);renderTab()')) : '<span style="color:#757575">' + (openInfo===i ? '&#9650;' : '&#9660;') + '</span>';
     h += '</div>';
     if (editMode || openInfo === i) {
       h += '<div style="margin-top:12px;border-top:0.5px solid #e0e0e0;padding-top:12px">';
@@ -1069,6 +1111,7 @@ function tInfos() {
         h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="color:' + G + ';flex-shrink:0">&#10003;</span>';
         if (editMode) {
           h += '<input class="ef" value="' + esc(s.items[j]) + '" style="flex:1" oninput="infos[' + i + '].items[' + j + ']=this.value">';
+          h += '<span style="display:inline-flex;flex-direction:column;gap:1px;margin-right:2px"><button onclick="if(infos['+i+'].items['+j+'-1]!==undefined){var t=infos['+i+'].items['+j+'];infos['+i+'].items['+j+']=infos['+i+'].items['+j+'-1];infos['+i+'].items['+j+'-1'+']=t;saveToStorage();renderTab()}" style="background:#f0f0f0;border:1px solid #ddd;border-radius:3px;cursor:pointer;font-size:9px;padding:1px 4px;line-height:1">▲</button><button onclick="if(infos['+i+'].items['+j+'+1]!==undefined){var t=infos['+i+'].items['+j+'];infos['+i+'].items['+j+']=infos['+i+'].items['+j+'+1];infos['+i+'].items['+j+'+1'+']=t;saveToStorage();renderTab()}" style="background:#f0f0f0;border:1px solid #ddd;border-radius:3px;cursor:pointer;font-size:9px;padding:1px 4px;line-height:1">▼</button></span>';
           h += '<button onclick="infos[' + i + '].items.splice(' + j + ',1);saveToStorage();renderTab()" style="background:none;border:none;color:' + R + ';cursor:pointer;font-size:16px">&#10005;</button>';
         } else {
           h += '<span style="font-size:13px;color:#616161">' + esc(s.items[j]) + '</span>';
@@ -1160,7 +1203,7 @@ function tDocuments() {
     h += '</div></div></div>';
     h += '<div style="display:flex;align-items:center;gap:8px">';
     if (!editMode) h += '<span style="color:#757575;font-size:12px">' + (isOpen ? '&#9650;' : '&#9660;') + '</span>';
-    h += delB('docs.splice(' + i + ',1);renderTab()');
+    h += mvB('docs',i,0) + mvB('docs',i,1) + delB('docs.splice(' + i + ',1);renderTab()');
     h += '</div></div>';
     if (isOpen) {
       h += '<div style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:14px">';
@@ -1177,8 +1220,9 @@ function tDocuments() {
       h += '</div>';
       h += '<div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px">&#128279; Lien / PDF</label>';
       if (editMode) h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><input class="ef" value="' + esc(d.linkUrl||'') + '" placeholder="URL (Google Drive, PDF...)" style="flex:1;min-width:160px" oninput="docs[' + i + '].linkUrl=this.value"><input class="ef" value="' + esc(d.linkLabel||'T\u00e9l\u00e9charger') + '" placeholder="Texte" style="width:140px" oninput="docs[' + i + '].linkLabel=this.value"></div>';
-      if (d.linkUrl) h += '<a href="' + escH(d.linkUrl) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:' + LR + ';color:' + R + ';border:1px solid ' + R + ';border-radius:6px;text-decoration:none;font-size:13px;font-weight:500" onclick="event.stopPropagation()">&#11015; ' + esc(d.linkLabel||'T\u00e9l\u00e9charger') + '</a>';
+      if (d.linkUrl) h += '<a href="' + escH(d.linkUrl) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:' + LR + ';color:' + R + ';border:1px solid ' + R + ';border-radius:6px;text-decoration:none;font-size:13px;font-weight:500" onclick="event.stopPropagation()">&#11015; ' + esc(d.linkLabel||'Télécharger') + '</a>';
       else if (!editMode) h += '<span style="font-size:12px;color:#bbb">Aucun lien</span>';
+      if (!editMode) h += ' <button onclick="printDoc(event,\'doc' + i + '\')" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;margin-left:4px">&#128438; Imprimer</button>';
       h += '</div></div>';
     }
     h += '</div>';
@@ -1214,7 +1258,7 @@ function tAgenda() {
       h += '<div style="font-size:15px;font-weight:500">' + esc(ev.title) + '</div>';
       h += '<div style="font-size:12px;color:#757575">&#128205; ' + esc(ev.lieu) + '</div>';
     }
-    h += '</div>' + delB('agenda.splice(' + i + ',1);renderTab()') + '</div></div>';
+    h += '</div><div style="display:flex;align-items:center;gap:3px">' + mvB('agenda',i,0) + mvB('agenda',i,1) + delB('agenda.splice(' + i + ',1);renderTab()') + '</div></div></div>';
   }
   return h;
 }
@@ -1292,7 +1336,7 @@ function tSondages() {
 }
 
 function renderTab() {
-  var map = {accueil:tAccueil, alertes:tAlertes, actions:tActions, contact:tContact, infos:tInfos, documents:tDocuments, agenda:tAgenda, newsletter:tNewsletter, sondages:tSondages};
+  var map = {accueil:tAccueil, alertes:tAlertes, actions:tActions, contact:tContact, infos:tInfos, documents:tDocuments, agenda:tAgenda, newsletter:tNewsletter, sondages:tSondages, numeros:tNumeros};
   var el = document.getElementById('tab-content');
   if (el) el.innerHTML = (map[currentTab] || tAccueil)();
 }
@@ -1383,6 +1427,84 @@ document.addEventListener('click', function(e) {
   var btn = document.getElementById('search-btn');
   if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) toggleSearch();
 });
+
+// ——— PRINT ———
+document.getElementById('print-date').textContent = new Date().toLocaleDateString('fr-FR');
+function printDoc(e, docId) {
+  e.stopPropagation();
+  document.getElementById('print-date').textContent = new Date().toLocaleDateString('fr-FR');
+  var el = document.getElementById(docId);
+  if (el) {
+    var orig = document.getElementById('tab-content').innerHTML;
+    document.getElementById('tab-content').innerHTML = el.outerHTML;
+    window.print();
+    document.getElementById('tab-content').innerHTML = orig;
+    renderTab();
+  } else {
+    window.print();
+  }
+}
+
+// ——— NUMÉROS UTILES ———
+var numeros = [
+  {id:1, cat:'Inspection du travail', items:[
+    {label:'DREETS (Direction régionale)', tel:'0801 654 810', note:'N° vert gratuit — orientation vers l’inspecteur compétent', url:'https://www.dreets.gouv.fr'},
+    {label:'Site officiel Travail-Emploi', tel:'', note:'Informations sur vos droits au travail', url:'https://travail-emploi.gouv.fr/contact'}
+  ]},
+  {id:2, cat:'Médecine du travail', items:[
+    {label:'Service de santé au travail', tel:'À compléter', note:'Contacter votre établissement pour le contact local', url:''},
+    {label:'INRS (Institut National Recherche Sécurité)', tel:'', note:'Prévention des risques professionnels', url:'https://www.inrs.fr'}
+  ]},
+  {id:3, cat:'Syndicat FO', items:[
+    {label:'FO CSE Les Cerisiers', tel:'', note:'cse.evidensia.fo@gmail.com', url:''},
+    {label:'FO nationale', tel:'01 40 52 82 00', note:'Force Ouvrière', url:'https://www.force-ouvriere.fr'},
+    {label:'FO vétérinaires', tel:'', note:'Section professionnelle vétérinaire', url:'https://www.fo-veterinaires.fr'}
+  ]},
+  {id:4, cat:'Protection sociale', items:[
+    {label:'CPAM (Assurance Maladie)', tel:'3646', note:'Lun-Ven 8h30-17h', url:'https://www.ameli.fr'},
+    {label:'CARSAT (retraite)', tel:'39 60', note:'Caisse d’assurance retraite', url:'https://www.lassuranceretraite.fr'},
+    {label:'Urssaf', tel:'3957', note:'Cotisations sociales', url:'https://www.urssaf.fr'}
+  ]},
+  {id:5, cat:'Urgences et soutien', items:[
+    {label:'Urgences', tel:'15 / 17 / 18', note:'SAMU / Police / Pompiers', url:''},
+    {label:'Numéro national prévention suicide', tel:'3114', note:'Disponible 24h/24', url:'https://www.3114.fr'},
+    {label:'Harcèlement au travail', tel:'3928', note:'Net Ecoute — Lun-Ven 9h-19h', url:'https://www.netecoute.fr'},
+    {label:'Défenseur des droits', tel:'09 69 39 00 00', note:'Discrimination, droits fondamentaux', url:'https://www.defenseurdesdroits.fr'}
+  ]},
+  {id:6, cat:'Organismes paritaires', items:[
+    {label:'APForm (formation vétérinaire)', tel:'', note:'Titres ASV, CQP de branche', url:'https://www.apform.fr'},
+    {label:'OPCO EP (financement formation)', tel:'', note:'Financement des formations', url:'https://www.opcoep.fr'},
+    {label:'Transition Pro', tel:'', note:'CPF de transition professionnelle', url:'https://www.transitionspro.fr'}
+  ]}
+];
+
+function tNumeros() {
+  var h = '<div style="background:#E3F2FD;border:0.5px solid #1565C0;border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#1565C0;line-height:1.7">&#128222; Retrouvez ici tous les contacts utiles. <strong>Cliquez sur un numéro</strong> pour l’appeler directement depuis votre mobile.</div>';
+  if (editMode) h += '<div style="background:#FFF3E0;border-radius:8px;padding:10px 14px;font-size:12px;color:#E65100;margin-bottom:12px">&#9998; Modifiez les numéros directement dans le code source (variable <code>numeros</code>).</div>';
+  for (var i = 0; i < numeros.length; i++) {
+    var cat = numeros[i];
+    h += '<div class="card" style="margin-bottom:12px">';
+    h += '<div style="font-size:14px;font-weight:600;color:' + R + ';margin-bottom:10px;display:flex;align-items:center;gap:8px">&#128222; ' + esc(cat.cat) + '</div>';
+    for (var j = 0; j < cat.items.length; j++) {
+      var it = cat.items[j];
+      h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid #f0f0f0;gap:12px;flex-wrap:wrap">';
+      h += '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">' + esc(it.label) + '</div>';
+      if (it.note) h += '<div style="font-size:11px;color:#9e9e9e;margin-top:2px">' + esc(it.note) + '</div>';
+      h += '</div>';
+      h += '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">';
+      if (it.tel) {
+        h += '<a href="tel:' + esc(it.tel.replace(/\s/g,'')) + '" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:' + LG + ';color:#2E7D32;border:1px solid #388E3C;border-radius:20px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap">&#128222; ' + esc(it.tel) + '</a>';
+      }
+      if (it.url) {
+        h += '<a href="' + escH(it.url) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#E3F2FD;color:#1565C0;border:1px solid #1565C0;border-radius:20px;text-decoration:none;font-size:13px;font-weight:500;white-space:nowrap">&#127760; Site web</a>';
+      }
+      h += '</div>';
+      h += '</div>';
+    }
+    h += '</div>';
+  }
+  return h;
+}
 
 // ——— DEFAULT INFOS (CCN 2025) ———
 var defaultInfos = [
