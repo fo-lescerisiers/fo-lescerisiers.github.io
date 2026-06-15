@@ -432,6 +432,9 @@ var newsletters = [
   {id:1, title:'Newsletter FO \u2014 Mai 2026', date:'25 mai 2026', dest:134, ouv:98},
   {id:2, title:'Sp\u00e9cial NAO 2026', date:'15 mars 2026', dest:134, ouv:112}
 ];
+var livredor = [];
+var ldForm = {nom:'', poste:'', msg:''};
+var ldSent = false;
 
 // ——— TABS ———
 var TABS = [
@@ -541,7 +544,7 @@ function mvB(arrName, i, dir) {
 
 // ——— STORAGE ———
 function allData() {
-  return {news:news, actions:actions, alerts:alerts, elus:elus, docs:docs, agenda:agenda, infos:infos, sondages:sondages, newsletters:newsletters, footerText:footerText, footerEmail:footerEmail, socialFacebook:socialFacebook, socialInstagram:socialInstagram};
+  return {news:news, actions:actions, alerts:alerts, elus:elus, docs:docs, agenda:agenda, infos:infos, sondages:sondages, newsletters:newsletters, livredor:livredor, footerText:footerText, footerEmail:footerEmail, socialFacebook:socialFacebook, socialInstagram:socialInstagram};
 }
 function applyData(d) {
   if (d.news && d.news.length) news = d.news;
@@ -571,6 +574,7 @@ function applyData(d) {
   if (d.footerEmail) footerEmail = d.footerEmail;
   if (typeof d.socialFacebook === 'string') socialFacebook = d.socialFacebook;
   if (typeof d.socialInstagram === 'string') socialInstagram = d.socialInstagram;
+  if (d.livredor) livredor = d.livredor;
 }
 function showToast(msg, color) {
   var t = document.getElementById('toast');
@@ -926,7 +930,37 @@ function tAccueil() {
   for (var i = 0; i < stats.length; i++) {
     h += '<div style="background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e0e0e0"><div style="font-size:24px;font-weight:500;color:' + R + '">' + stats[i][0] + '</div><div style="font-size:12px;color:#757575">' + stats[i][1] + '</div></div>';
   }
-  h += '</div><h3 style="font-size:16px;font-weight:500;margin-bottom:12px">Actualit\u00e9s</h3>';
+  h += '</div>';
+
+  // ——— PRÉSENTATION SAS LES CERISIERS ———
+  h += '<div style="background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:20px 24px;margin-bottom:20px">';
+  h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span style="font-size:22px">&#127973;</span><h3 style="font-size:16px;font-weight:600;color:#212121;margin:0">SAS Les Cerisiers — Groupe IVC Evidensia</h3></div>';
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px">';
+  var sasStats = [
+    {icon:"&#127968;", val:"220", label:"établissements", sub:"dont 214 en activité"},
+    {icon:"&#128101;", val:"+ 2 000", label:"salariés", sub:"vétérinaires & ASV"},
+    {icon:"&#128197;", val:"2004", label:"année de création", sub:"05 janvier 2004"},
+    {icon:"&#128181;", val:"300 000 €", label:"capital social", sub:"SAS — RCS Nanterre"}
+  ];
+  for (var si = 0; si < sasStats.length; si++) {
+    var ss = sasStats[si];
+    h += '<div style="background:#f9f9f9;border-radius:8px;padding:12px;text-align:center">';
+    h += '<div style="font-size:20px;margin-bottom:4px">' + ss.icon + '</div>';
+    h += '<div style="font-size:17px;font-weight:700;color:#D32F2F">' + ss.val + '</div>';
+    h += '<div style="font-size:11px;font-weight:600;color:#424242">' + ss.label + '</div>';
+    h += '<div style="font-size:10px;color:#9e9e9e;margin-top:2px">' + ss.sub + '</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px">';
+  h += '<div style="background:#FFEBEE;border-radius:8px;padding:10px 14px"><div style="font-size:11px;color:#9e9e9e;margin-bottom:2px">Président</div><div style="font-size:14px;font-weight:600;color:#B71C1C">Dr Frédéric Pinto</div><div style="font-size:11px;color:#757575">Élu le 12 déc. 2024 — vétérinaire et ancien DG</div></div>';
+  h += '<div style="background:#f9f9f9;border-radius:8px;padding:10px 14px"><div style="font-size:11px;color:#9e9e9e;margin-bottom:2px">Siège social</div><div style="font-size:13px;font-weight:500">8–14 Avenue de l’Arche, ZAC Danton</div><div style="font-size:11px;color:#757575">92400 Courbevoie — SIREN : 451 829 865</div></div>';
+  h += '<div style="background:#f9f9f9;border-radius:8px;padding:10px 14px"><div style="font-size:11px;color:#9e9e9e;margin-bottom:2px">Secteur / Convention</div><div style="font-size:13px;font-weight:500">Activités vétérinaires (NAF 75.00Z)</div><div style="font-size:11px;color:#757575">CCN Établissements de soins vétérinaires</div></div>';
+  h += '</div>';
+  h += '<div style="background:#E3F2FD;border-radius:8px;padding:10px 14px;font-size:12px;color:#1565C0;line-height:1.6">&#128161; <strong>Contexte :</strong> Anciennement <em>Clinique vétérinaire des Cerisiers</em>, renommée <strong>Les Cerisiers</strong> en janvier 2024. Structure clé du réseau <strong>IVC Evidensia France</strong>, opérateur européen de cliniques vétérinaires.</div>';
+  h += '</div>';
+
+  h += '<h3 style="font-size:16px;font-weight:500;margin-bottom:12px">Actualités</h3>';
   h += addB("news.unshift({id:nid(),date:'Date',cat:'Groupe',title:'Nouveau titre',content:'',imageUrl:'',videoUrl:'',linkUrl:'',linkLabel:'En savoir plus'});renderTab()", "Ajouter une actualit\u00e9");
   for (var i = 0; i < news.length; i++) {
     var n = news[i];
@@ -963,6 +997,64 @@ function tAccueil() {
       if (vid) h += '<div style="margin-top:10px;border-radius:8px;overflow:hidden"><iframe width="100%" height="220" src="https://www.youtube.com/embed/' + vid + '" frameborder="0" allowfullscreen style="display:block"></iframe></div>';
     }
     if (n.linkUrl) h += '<div style="margin-top:10px"><a href="' + escH(n.linkUrl) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:' + LR + ';color:' + R + ';border:1px solid ' + R + ';border-radius:6px;text-decoration:none;font-size:13px;font-weight:500" onclick="event.stopPropagation()">&#128279; ' + esc(n.linkLabel||'En savoir plus') + '</a></div>';
+    h += '</div>';
+  }
+  // ——— LIVRE D'OR ———
+  var published = livredor.filter(function(m){ return m.status === 'published'; });
+  h += '<h3 style="font-size:16px;font-weight:500;margin:28px 0 12px;display:flex;align-items:center;gap:8px">&#11088; On parle de nous&#160;!</h3>';
+  if (editMode) {
+    var pending = livredor.filter(function(m){ return m.status === 'pending'; });
+    if (pending.length) {
+      h += '<div style="background:#FFF3E0;border:1px solid #FF6F00;border-radius:10px;padding:12px 16px;margin-bottom:12px">';
+      h += '<div style="font-size:13px;font-weight:600;color:#E65100;margin-bottom:8px">&#9203; ' + pending.length + ' message(s) en attente de validation</div>';
+      for (var pi = 0; pi < pending.length; pi++) {
+        var pm = pending[pi];
+        var pidx = livredor.indexOf(pm);
+        h += '<div style="background:#fff;border-radius:8px;padding:10px 12px;margin-bottom:8px;border:1px solid #ffe0b2">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px">';
+        h += '<div><strong style="font-size:13px">' + esc(pm.nom||'Anonyme') + '</strong>';
+        if (pm.poste) h += ' <span style="font-size:11px;color:#9e9e9e">— ' + esc(pm.poste) + '</span>';
+        h += ' <span style="font-size:11px;color:#bbb">' + esc(pm.date) + '</span></div>';
+        h += '<div style="display:flex;gap:6px">';
+        h += '<button onclick="livredor[' + pidx + '].status=\'published\';saveToStorage();renderTab()" style="padding:4px 10px;background:#E8F5E9;color:#2E7D32;border:1px solid #388E3C;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">&#10003; Publier</button>';
+        h += '<button onclick="livredor.splice(' + pidx + ',1);saveToStorage();renderTab()" style="padding:4px 10px;background:#FFEBEE;color:#D32F2F;border:1px solid #D32F2F;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">&#10005; Refuser</button>';
+        h += '</div></div>';
+        h += '<div style="font-size:13px;color:#424242;font-style:italic">“' + esc(pm.msg) + '”</div>';
+        h += '</div>';
+      }
+      h += '</div>';
+    }
+  }
+  if (published.length) {
+    h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px">';
+    for (var li = 0; li < published.length; li++) {
+      var lm = published[li];
+      var lidx = livredor.indexOf(lm);
+      h += '<div style="background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px;position:relative">';
+      h += '<div style="font-size:20px;color:#FFB300;margin-bottom:8px">&#11088;&#11088;&#11088;&#11088;&#11088;</div>';
+      h += '<div style="font-size:13px;color:#424242;font-style:italic;line-height:1.6;margin-bottom:10px">“' + esc(lm.msg) + '”</div>';
+      h += '<div style="font-size:12px;font-weight:600;color:#212121">' + esc(lm.nom||'Anonyme') + '</div>';
+      if (lm.poste) h += '<div style="font-size:11px;color:#9e9e9e">' + esc(lm.poste) + '</div>';
+      h += '<div style="font-size:11px;color:#bbb;margin-top:4px">' + esc(lm.date) + '</div>';
+      if (editMode) h += '<button onclick="livredor.splice(' + lidx + ',1);saveToStorage();renderTab()" style="position:absolute;top:10px;right:10px;background:#ffebee;border:1px solid #D32F2F;border-radius:6px;cursor:pointer;color:#D32F2F;padding:2px 7px;font-size:11px;font-family:inherit">&#10005;</button>';
+      h += '</div>';
+    }
+    h += '</div>';
+  } else if (!editMode) {
+    h += '<div style="background:#fff;border:1px dashed #e0e0e0;border-radius:12px;padding:24px;text-align:center;color:#9e9e9e;font-size:13px;margin-bottom:16px">Soyez le premier à laisser un message&#160;!</div>';
+  }
+  if (ldSent) {
+    h += '<div style="background:#E8F5E9;border:1px solid #388E3C;border-radius:10px;padding:16px;text-align:center;margin-bottom:16px"><div style="font-size:24px;margin-bottom:6px">&#9989;</div><div style="color:#2E7D32;font-weight:500;font-size:13px">Merci&#160;! Votre message sera publié après validation.</div><button onclick="ldSent=false;ldForm={nom:\'\',poste:\'\',msg:\'\'};renderTab()" style="margin-top:10px;padding:6px 16px;background:#388E3C;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">Nouveau message</button></div>';
+  } else {
+    h += '<div style="background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px 20px;margin-bottom:16px">';
+    h += '<div style="font-size:14px;font-weight:500;margin-bottom:12px;color:#424242">&#9997;️ Laisser un message</div>';
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">';
+    h += '<div><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Votre nom (optionnel)</label><input value="' + esc(ldForm.nom) + '" placeholder="Anonyme" style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px;font-family:inherit" oninput="ldForm.nom=this.value"></div>';
+    h += '<div><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Poste (optionnel)</label><input value="' + esc(ldForm.poste) + '" placeholder="ASV, Vétérinaire..." style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px;font-family:inherit" oninput="ldForm.poste=this.value"></div>';
+    h += '</div>';
+    h += '<div style="margin-bottom:12px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Votre message <span style="color:#D32F2F">*</span></label><textarea style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px;resize:vertical;min-height:80px;font-family:inherit" placeholder="Partagez votre expérience avec FO ..." oninput="ldForm.msg=this.value">' + esc(ldForm.msg) + '</textarea></div>';
+    h += '<button onclick="if(ldForm.msg.trim()){livredor.push({id:nid(),nom:ldForm.nom,poste:ldForm.poste,msg:ldForm.msg,date:new Date().toLocaleDateString(\'fr-FR\'),status:\'pending\'});ldSent=true;saveToStorage();renderTab()}" class="btn btn-r">&#128140; Envoyer</button>';
+    h += '<span style="font-size:11px;color:#9e9e9e;margin-left:10px">Visible après validation par un élu FO</span>';
     h += '</div>';
   }
   return h;
@@ -1448,8 +1540,8 @@ function printDoc(e, docId) {
 // ——— NUMÉROS UTILES ———
 var numeros = [
   {id:1, cat:'Inspection du travail', items:[
-    {label:'DREETS (Direction régionale)', tel:'0801 654 810', note:'N° vert gratuit — orientation vers l’inspecteur compétent', url:'https://www.dreets.gouv.fr'},
-    {label:'Site officiel Travail-Emploi', tel:'', note:'Informations sur vos droits au travail', url:'https://travail-emploi.gouv.fr/contact'}
+    {label:'DREETS (Direction régionale)', tel:'0801 654 810', note:'N° vert gratuit — orientation vers l’inspecteur compétent', url:'https://dreets.gouv.fr/'},
+    {label:'Site officiel Travail-Emploi', tel:'', note:'Informations sur vos droits au travail', url:'https://travail-emploi.gouv.fr/'}
   ]},
   {id:2, cat:'Médecine du travail', items:[
     {label:'Service de santé au travail', tel:'À compléter', note:'Contacter votre établissement pour le contact local', url:''},
@@ -1458,7 +1550,8 @@ var numeros = [
   {id:3, cat:'Syndicat FO', items:[
     {label:'FO CSE Les Cerisiers', tel:'', note:'cse.evidensia.fo@gmail.com', url:''},
     {label:'FO nationale', tel:'01 40 52 82 00', note:'Force Ouvrière', url:'https://www.force-ouvriere.fr'},
-    {label:'FO vétérinaires', tel:'', note:'Section professionnelle vétérinaire', url:'https://www.fo-veterinaires.fr'}
+    {label:'ASVenForce', tel:'', note:'FO — ASV et vétérinaires en action', url:'https://www.force-ouvriere.fr/anne-marie-j-ai-deploye-mes-ailes-dans-le-syndicalisme-13713'},
+    {label:'FO vétérinaires et ASV', tel:'', note:'Union Nationale des Syndicats FO', url:'https://unsfo.org/'}
   ]},
   {id:4, cat:'Protection sociale', items:[
     {label:'CPAM (Assurance Maladie)', tel:'3646', note:'Lun-Ven 8h30-17h', url:'https://www.ameli.fr'},
@@ -1468,7 +1561,7 @@ var numeros = [
   {id:5, cat:'Urgences et soutien', items:[
     {label:'Urgences', tel:'15 / 17 / 18', note:'SAMU / Police / Pompiers', url:''},
     {label:'Numéro national prévention suicide', tel:'3114', note:'Disponible 24h/24', url:'https://www.3114.fr'},
-    {label:'Harcèlement au travail', tel:'3928', note:'Net Ecoute — Lun-Ven 9h-19h', url:'https://www.netecoute.fr'},
+    {label:'Harcèlement au travail', tel:'3928', note:'Net Ecoute — Lun-Ven 9h-19h', url:'https://psyfrance.fr/prestations/cellule-decoute/'},
     {label:'Défenseur des droits', tel:'09 69 39 00 00', note:'Discrimination, droits fondamentaux', url:'https://www.defenseurdesdroits.fr'}
   ]},
   {id:6, cat:'Organismes paritaires', items:[
