@@ -323,6 +323,8 @@ var sdForm = {titre:'', q1:'', q2:'', q3:''};
 var sdSent = false;
 var docFilter = 'Tous';
 var docCategories = ['Protection du salari\u00e9', 'Protection des animaux', 'Vie en entreprise', 'Repr\u00e9sentation syndicale', 'Autres'];
+// ⚠️ FORMSPREE : remplacez par votre endpoint Formspree (ex: https://formspree.io/f/XXXXXXXX)
+var formspreeEndpoint = 'https://formspree.io/f/xzdlrnop';
 var openInfo = null;
 var openDocs = {};
 var chatLoading = false;
@@ -1160,6 +1162,13 @@ function tContact() {
     h += '</div>';
   }
   h += '</div><h3 style="font-size:16px;font-weight:500;margin-bottom:12px">Envoyer un message</h3>';
+  if (editMode) {
+    h += '<div style="background:#FFF8E1;border:1px solid #FFB300;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px">';
+    h += '<div style="font-weight:600;color:#8F6500;margin-bottom:6px">⚙️ Endpoint Formspree (mode admin)</div>';
+    h += '<input value="' + esc(formspreeEndpoint) + '" style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid #FFB300;font-size:12px;font-family:inherit" oninput="formspreeEndpoint=this.value" placeholder="https://formspree.io/f/XXXXXXXX">';
+    h += '<div style="font-size:11px;color:#8F6500;margin-top:4px">Créez votre formulaire gratuit sur <a href=\'https://formspree.io\' target=\'_blank\' style=\'color:#1976D2\'>formspree.io</a> et collez ici l\'endpoint fourni.</div>';
+    h += '</div>';
+  }
   if (contactSent) {
     h += '<div class="card" style="background:' + LG + ';border:1px solid ' + G + ';text-align:center;padding:24px"><div style="font-size:32px;margin-bottom:8px">&#9989;</div><div style="color:#2E7D32;font-weight:500">Message envoy\u00e9\u00a0!</div><button onclick="contactSent=false;cf={nom:\'\',email:\'\',elu:\'\',sujet:\'\',msg:\'\'};renderTab()" style="margin-top:12px;padding:8px 16px;background:' + G + ';color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Nouveau message</button></div>';
   } else {
@@ -1173,7 +1182,24 @@ function tContact() {
     h += '</select></div>';
     h += '<div style="margin-bottom:10px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Sujet</label><input value="' + esc(cf.sujet) + '" style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px" oninput="cf.sujet=this.value"></div>';
     h += '<div style="margin-bottom:14px"><label style="font-size:12px;color:#757575;display:block;margin-bottom:4px">Message</label><textarea style="width:100%;padding:8px 10px;border-radius:6px;border:0.5px solid #e0e0e0;font-size:13px;resize:vertical;min-height:90px;font-family:inherit" oninput="cf.msg=this.value">' + esc(cf.msg) + '</textarea></div>';
-    h += '<button onclick="if(cf.nom&&cf.email&&cf.msg){contactSent=true;renderTab()}" class="btn btn-r">&#128228; Envoyer</button></div>';
+    h += '<button onclick="(function(){'
+      + 'if(!cf.nom||!cf.email||!cf.msg){alert(\'Merci de remplir tous les champs.\');return;}'
+      + 'var btn=event.target;btn.disabled=true;btn.textContent=\'Envoi en cours…\';'
+      + 'fetch(formspreeEndpoint,{'
+      + 'method:\'POST\','
+      + 'headers:{\'Content-Type\':\'application/json\',\'Accept\':\'application/json\'},'
+      + 'body:JSON.stringify({nom:cf.nom,email:cf.email,elu:cf.elu,sujet:cf.sujet,message:cf.msg})'
+      + '})'
+      + '.then(function(r){return r.json();})'
+      + '.then(function(data){'
+      + 'if(data.ok){contactSent=true;cf={nom:\'\',email:\'\',elu:\'\',sujet:\'\',msg:\'\'};renderTab();}'
+      + 'else{btn.disabled=false;btn.textContent=\'📨 Envoyer\';alert(\'Erreur lors de l\\\'envoi. Réessayez ou écrivez directement à \'+footerEmail);}'
+      + '})'
+      + '.catch(function(){'
+      + 'btn.disabled=false;btn.textContent=\'📨 Envoyer\';'
+      + 'alert(\'Erreur réseau. Réessayez ou écrivez directement à \'+footerEmail);'
+      + '});'
+      + '})()" class="btn btn-r">&#128228; Envoyer</button></div>';
   }
   return h;
 }
@@ -1472,13 +1498,13 @@ function tSondages() {
     // Boutons
     h += '<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">';
     if (hasQuestions && s.status==='actif' && !alreadyAnswered) {
-      h += '<button onclick="openDocs[\'sondage_form_' + s.id + '\']=!openDocs[\'sondage_form_' + s.id + '\'];openDocs[\'sondage_' + s.id + '\']=false;renderTab()" style="padding:6px 14px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:500">✏️ Répondre</button>';
+      h += '<button onclick="openDocs[&quot;sondage_form_' + s.id + '&quot;]=!openDocs[&quot;sondage_form_' + s.id + '&quot;];openDocs[&quot;sondage_' + s.id + '&quot;]=false;renderTab()" style="padding:6px 14px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:500">✏️ Répondre</button>';
     }
     if (alreadyAnswered) {
       h += '<span style="padding:6px 12px;background:#E8F5E9;color:#2E7D32;border-radius:6px;font-size:12px;font-weight:500">✅ Répondu</span>';
     }
     if (hasQuestions && (s.reponsesList||[]).length > 0) {
-      h += '<button onclick="openDocs[\'sondage_' + s.id + '\']=!openDocs[\'sondage_' + s.id + '\'];openDocs[\'sondage_form_' + s.id + '\']=false;renderTab()" style="padding:6px 14px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">📊 Résultats</button>';
+      h += '<button onclick="openDocs[&quot;sondage_' + s.id + '&quot;]=!openDocs[&quot;sondage_' + s.id + '&quot;];openDocs[&quot;sondage_form_' + s.id + '&quot;]=false;renderTab()" style="padding:6px 14px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">📊 Résultats</button>';
     }
     h += '</div></div>';
 
@@ -1536,10 +1562,10 @@ function tSondages() {
         + 'sondages[idx].reponsesList.push(rep);'
         + 'sondages[idx].reponses=(sondages[idx].reponsesList||[]).length;'
         + 'if(localStorage)localStorage.setItem(\'fo_sd_' + s.id + '\',\'1\');'
-        + 'openDocs[\'sondage_form_' + s.id + '\']=false;'
+        + 'openDocs[&quot;sondage_form_&quot;+s.id]=false;'
         + 'saveToStorage();renderTab();'
         + '})()" style="padding:10px 24px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;font-family:inherit">✅ Envoyer mes réponses</button>';
-      h += '<button onclick="openDocs[\'sondage_form_' + s.id + '\']=false;renderTab()" style="padding:10px 16px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Annuler</button>';
+      h += '<button onclick="openDocs[&quot;sondage_form_&quot;+s.id]=false;renderTab()" style="padding:10px 16px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Annuler</button>';
       h += '</div></form></div>';
     }
 
