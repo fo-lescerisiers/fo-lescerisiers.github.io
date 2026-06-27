@@ -381,6 +381,43 @@ var TABS = [
 
 // ——— HELPERS ———
 function nid() { return Date.now() + Math.random(); }
+async function saveSondageReponse(sondageId, rep) {
+  // 1. Sauvegarde locale immédiate
+  var idx = sondages.findIndex(function(x){ return x.id === sondageId; });
+  if (!sondages[idx].reponsesList) sondages[idx].reponsesList = [];
+  sondages[idx].reponsesList.push(rep);
+  sondages[idx].reponses = sondages[idx].reponsesList.length;
+  saveLocalOnly();
+  // 2. Envoi sur Firebase nœud public /reponses-sondages/ (sans token)
+  if (fbUrl) {
+    try {
+      var key = 'sd_' + sondageId + '_' + Date.now();
+      await fetch(fbUrl + '/reponses-sondages/' + key + '.json', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({sondageId: sondageId, rep: rep})
+      });
+    } catch(e) {}
+  }
+}
+async function loadSondageReponses() {
+  if (!fbUrl) return;
+  try {
+    var r = await fetch(fbUrl + '/reponses-sondages.json');
+    if (!r.ok) return;
+    var data = await r.json();
+    if (!data) return;
+    // Reset reponsesList on all sondages
+    sondages.forEach(function(s){ s.reponsesList = []; });
+    Object.values(data).forEach(function(item){
+      var idx = sondages.findIndex(function(s){ return s.id === item.sondageId; });
+      if (idx >= 0) {
+        sondages[idx].reponsesList.push(item.rep);
+        sondages[idx].reponses = sondages[idx].reponsesList.length;
+      }
+    });
+  } catch(e) {}
+}
 function autoCategoryFor(title, content) {
   var t = ((title||'') + ' ' + (content||'')).toLowerCase();
   if (/maltrait|animal|b[ie]e?n-?\u00eatre animal|cruaut\u00e9/.test(t)) return 'Protection des animaux';
@@ -489,7 +526,7 @@ function mvB(arrName, i, dir) {
 
 // ——— STORAGE ———
 function allData() {
-  return {news:news, actions:actions, alerts:alerts, elus:elus, docs:docs, agenda:agenda, infos:infos, sondages:sondages, newsletters:newsletters, livredor:livredor, footerText:footerText, footerEmail:footerEmail, socialFacebook:socialFacebook, socialInstagram:socialInstagram, docCategories:docCategories};
+  return {news:news, actions:actions, alerts:alerts, elus:elus, docs:docs, agenda:agenda, infos:infos, sondages:sondages, newsletters:newsletters, livredor:livredor, footerText:footerText, footerEmail:footerEmail, socialFacebook:socialFacebook, socialInstagram:socialInstagram, docCategories:docCategories, formspreeEndpoint:formspreeEndpoint};
 }
 function applyData(d) {
   if (d.news && d.news.length) news = d.news;
@@ -524,6 +561,7 @@ function applyData(d) {
   if (typeof d.socialInstagram === 'string') socialInstagram = d.socialInstagram;
   if (d.livredor) livredor = d.livredor;
   if (d.docCategories && d.docCategories.length) docCategories = d.docCategories;
+  if (d.formspreeEndpoint) formspreeEndpoint = d.formspreeEndpoint;
 }
 function showToast(msg, color) {
   var t = document.getElementById('toast');
@@ -1563,7 +1601,7 @@ function tSondages() {
         + 'sondages[idx].reponses=(sondages[idx].reponsesList||[]).length;'
         + 'if(localStorage)localStorage.setItem(\'fo_sd_' + s.id + '\',\'1\');'
         + 'openDocs[&quot;sondage_form_&quot;+s.id]=false;'
-        + 'saveToStorage();renderTab();'
+        + 'saveSondageReponse(' + s.id + ',rep).then(function(){renderTab();});'
         + '})()" style="padding:10px 24px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;font-family:inherit">✅ Envoyer mes réponses</button>';
       h += '<button onclick="openDocs[&quot;sondage_form_&quot;+s.id]=false;renderTab()" style="padding:10px 16px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Annuler</button>';
       h += '</div></form></div>';
@@ -1908,6 +1946,7 @@ renderTab();
 if (fbUrl) {
   cloudLoad().then(function(ok) {
     if (ok) { renderNav(); renderBanners(); renderTab(); }
+    loadSondageReponses().then(function(){ renderTab(); });
   });
 }
 </script>
