@@ -1493,11 +1493,39 @@ function tNewsletter() {
   return h;
 }
 
+function submitSondage(sondageId) {
+  var s = sondages.filter(function(x){ return x.id === sondageId; })[0];
+  if (!s) return;
+  var rep = {};
+  var ok = true;
+  for (var i = 0; i < s.questions.length; i++) {
+    var q = s.questions[i];
+    if (q.type === 'radio') {
+      var el = document.querySelector('input[name="sd_' + sondageId + '_' + q.id + '"]:checked');
+      if (el) rep[q.id] = el.value;
+      else if (q.required) { ok = false; break; }
+    } else if (q.type === 'checkboxes') {
+      var els = document.querySelectorAll('input[name="sd_' + sondageId + '_' + q.id + '"]:checked');
+      var vals = [];
+      for (var j = 0; j < els.length; j++) vals.push(els[j].value);
+      if (vals.length) rep[q.id] = vals;
+      else if (q.required) { ok = false; break; }
+    } else if (q.type === 'textarea') {
+      var el2 = document.getElementById('sd_' + sondageId + '_' + q.id);
+      if (el2 && el2.value.trim()) rep[q.id] = el2.value.trim();
+    }
+  }
+  if (!ok) { alert('Merci de répondre aux questions obligatoires (*).'); return; }
+  rep._date = new Date().toLocaleDateString('fr-FR');
+  if (localStorage) localStorage.setItem('fo_sd_' + sondageId, '1');
+  openDocs['sondage_form_' + sondageId] = false;
+  saveSondageReponse(sondageId, rep).then(function(){ renderTab(); });
+}
+
 function tSondages() {
   var h = '';
   var G2 = '#43A047';
 
-  // Mode admin : liste + ajout simple (anciens sondages)
   if (editMode) {
     h += addB("sondages.push({id:nid(),date:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}),title:'Nouveau sondage',status:'actif',reponses:0,questions:[],reponsesList:[]});saveToStorage();renderTab()", 'Nouveau sondage');
     for (var i = 0; i < sondages.length; i++) {
@@ -1515,150 +1543,108 @@ function tSondages() {
     return h;
   }
 
-  // Mode public : affichage des sondages
   for (var si = 0; si < sondages.length; si++) {
     var s = sondages[si];
-    var hasQuestions = s.questions && s.questions.length > 0;
-    var isOpen = openDocs['sondage_' + s.id];
+    var hasQ = s.questions && s.questions.length > 0;
     var isOpenForm = openDocs['sondage_form_' + s.id];
-    var alreadyAnswered = localStorage.getItem && localStorage.getItem('fo_sd_' + s.id) === '1';
+    var isOpenRes  = openDocs['sondage_' + s.id];
+    var done = localStorage && localStorage.getItem('fo_sd_' + s.id) === '1';
 
     h += '<div class="card" style="margin-bottom:12px">';
-    // En-tête
     h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">';
     h += '<div style="flex:1">';
     h += bdg(s.status==='actif' ? 'Actif' : 'Clos', s.status==='actif' ? G2 : '#546E7A');
     h += ' <span style="font-size:12px;color:#757575">' + esc(s.date) + '</span>';
     h += '<div style="font-size:15px;font-weight:600;margin:8px 0 4px">' + esc(s.title) + '</div>';
-    if (s.description) h += '<div style="font-size:13px;color:#555;margin-bottom:8px">' + esc(s.description) + '</div>';
+    if (s.description) h += '<div style="font-size:13px;color:#555;margin-bottom:6px">' + esc(s.description) + '</div>';
     h += '<div style="font-size:12px;color:#757575">' + (s.reponses||0) + ' réponse(s)</div>';
     h += '</div>';
-    // Boutons
     h += '<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">';
-    if (hasQuestions && s.status==='actif' && !alreadyAnswered) {
-      h += '<button onclick="openDocs[&quot;sondage_form_' + s.id + '&quot;]=!openDocs[&quot;sondage_form_' + s.id + '&quot;];openDocs[&quot;sondage_' + s.id + '&quot;]=false;renderTab()" style="padding:6px 14px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:500">✏️ Répondre</button>';
+    if (hasQ && s.status==='actif' && !done) {
+      h += '<button onclick="openDocs[\'sondage_form_' + s.id + '\']=!openDocs[\'sondage_form_' + s.id + '\'];openDocs[\'sondage_' + s.id + '\']=false;renderTab()" style="padding:6px 14px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:500">✏️ Répondre</button>';
     }
-    if (alreadyAnswered) {
-      h += '<span style="padding:6px 12px;background:#E8F5E9;color:#2E7D32;border-radius:6px;font-size:12px;font-weight:500">✅ Répondu</span>';
-    }
-    if (hasQuestions && (s.reponsesList||[]).length > 0) {
-      h += '<button onclick="openDocs[&quot;sondage_' + s.id + '&quot;]=!openDocs[&quot;sondage_' + s.id + '&quot;];openDocs[&quot;sondage_form_' + s.id + '&quot;]=false;renderTab()" style="padding:6px 14px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">📊 Résultats</button>';
+    if (done) h += '<span style="padding:6px 12px;background:#E8F5E9;color:#2E7D32;border-radius:6px;font-size:12px;font-weight:500">✅ Répondu</span>';
+    if (hasQ && (s.reponsesList||[]).length > 0) {
+      h += '<button onclick="openDocs[\'sondage_' + s.id + '\']=!openDocs[\'sondage_' + s.id + '\'];openDocs[\'sondage_form_' + s.id + '\']=false;renderTab()" style="padding:6px 14px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit">📊 Résultats</button>';
     }
     h += '</div></div>';
 
     // ─── FORMULAIRE ───
-    if (isOpenForm && hasQuestions && s.status==='actif' && !alreadyAnswered) {
+    if (isOpenForm && hasQ && s.status==='actif' && !done) {
       h += '<div style="margin-top:16px;border-top:1px solid #e0e0e0;padding-top:16px">';
       h += '<div style="font-size:14px;font-weight:600;color:#1976D2;margin-bottom:14px">📝 Formulaire de réponse</div>';
-      h += '<form onsubmit="return false">';
       for (var qi = 0; qi < s.questions.length; qi++) {
         var q = s.questions[qi];
-        h += '<div style="margin-bottom:18px;padding:12px 14px;background:#f9f9f9;border-radius:8px;border-left:3px solid #1976D2">';
-        h += '<div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px">';
-        h += (qi+1) + '. ' + esc(q.label);
-        if (q.required) h += ' <span style="color:#D32F2F">*</span>';
-        h += '</div>';
+        h += '<div style="margin-bottom:16px;padding:12px 14px;background:#f9f9f9;border-radius:8px;border-left:3px solid #1976D2">';
+        h += '<div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px">' + (qi+1) + '. ' + esc(q.label) + (q.required ? ' <span style="color:#D32F2F">*</span>' : '') + '</div>';
         if (q.type === 'radio') {
           for (var oi = 0; oi < q.options.length; oi++) {
             h += '<label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px">';
-            h += '<input type="radio" name="sd_' + s.id + '_' + q.id + '" value="' + esc(q.options[oi]) + '" style="width:15px;height:15px;cursor:pointer">';
-            h += esc(q.options[oi]) + '</label>';
+            h += '<input type="radio" name="sd_' + s.id + '_' + q.id + '" value="' + esc(q.options[oi]) + '" style="width:15px;height:15px;cursor:pointer"> ' + esc(q.options[oi]) + '</label>';
           }
         } else if (q.type === 'checkboxes') {
           for (var oi = 0; oi < q.options.length; oi++) {
             h += '<label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:13px">';
-            h += '<input type="checkbox" name="sd_' + s.id + '_' + q.id + '" value="' + esc(q.options[oi]) + '" style="width:15px;height:15px;cursor:pointer">';
-            h += esc(q.options[oi]) + '</label>';
+            h += '<input type="checkbox" name="sd_' + s.id + '_' + q.id + '" value="' + esc(q.options[oi]) + '" style="width:15px;height:15px;cursor:pointer"> ' + esc(q.options[oi]) + '</label>';
           }
         } else if (q.type === 'textarea') {
-          h += '<textarea placeholder="' + esc(q.placeholder||'') + '" id="sd_' + s.id + '_' + q.id + '" style="width:100%;min-height:80px;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;box-sizing:border-box"></textarea>';
+          h += '<textarea id="sd_' + s.id + '_' + q.id + '" placeholder="' + esc(q.placeholder||'') + '" style="width:100%;min-height:80px;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;box-sizing:border-box"></textarea>';
         }
         h += '</div>';
       }
       h += '<div style="display:flex;gap:10px;margin-top:8px">';
-      h += '<button onclick="(function(){'
-        + 'var rep={};var ok=true;'
-        + 'var qs=sondages.filter(function(x){return x.id===' + s.id + '})[0].questions;'
-        + 'for(var i=0;i<qs.length;i++){'
-        + 'var q=qs[i];'
-        + 'if(q.type===\'radio\'){'
-        + 'var el=document.querySelector(\'input[name="sd_' + s.id + '_\'+q.id+\'"]:checked\');'
-        + 'if(el)rep[q.id]=el.value;else if(q.required){ok=false;break;}'
-        + '}else if(q.type===\'checkboxes\'){'
-        + 'var els=document.querySelectorAll(\'input[name="sd_' + s.id + '_\'+q.id+\'"]:checked\');'
-        + 'var vals=[];for(var j=0;j<els.length;j++)vals.push(els[j].value);'
-        + 'if(vals.length)rep[q.id]=vals;else if(q.required){ok=false;break;}'
-        + '}else if(q.type===\'textarea\'){'
-        + 'var el2=document.getElementById(\'sd_' + s.id + '_\'+q.id);'
-        + 'if(el2&&el2.value.trim())rep[q.id]=el2.value.trim();'
-        + '}'
-        + '}'
-        + 'if(!ok){alert(\'Merci de répondre aux questions obligatoires (*)\');return;}'
-        + 'rep._date=new Date().toLocaleDateString(\'fr-FR\');'
-        + 'var idx=sondages.findIndex(function(x){return x.id===' + s.id + '});'
-        + 'if(!sondages[idx].reponsesList)sondages[idx].reponsesList=[];'
-        + 'sondages[idx].reponsesList.push(rep);'
-        + 'sondages[idx].reponses=(sondages[idx].reponsesList||[]).length;'
-        + 'if(localStorage)localStorage.setItem(\'fo_sd_' + s.id + '\',\'1\');'
-        + 'openDocs[&quot;sondage_form_&quot;+s.id]=false;'
-        + 'saveSondageReponse(' + s.id + ',rep).then(function(){renderTab();});'
-        + '})()" style="padding:10px 24px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;font-family:inherit">✅ Envoyer mes réponses</button>';
-      h += '<button onclick="openDocs[&quot;sondage_form_&quot;+s.id]=false;renderTab()" style="padding:10px 16px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Annuler</button>';
-      h += '</div></form></div>';
+      h += '<button onclick="submitSondage(' + s.id + ')" style="padding:10px 24px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;font-family:inherit">✅ Envoyer mes réponses</button>';
+      h += '<button onclick="openDocs[\'sondage_form_' + s.id + '\']=false;renderTab()" style="padding:10px 16px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">Annuler</button>';
+      h += '</div></div>';
     }
 
     // ─── RÉSULTATS ───
-    if (isOpen && (s.reponsesList||[]).length > 0) {
+    if (isOpenRes && (s.reponsesList||[]).length > 0) {
       var reps = s.reponsesList;
       h += '<div style="margin-top:16px;border-top:1px solid #e0e0e0;padding-top:16px">';
       h += '<div style="font-size:14px;font-weight:600;color:#555;margin-bottom:14px">📊 Résultats — ' + reps.length + ' réponse(s)</div>';
-      if (s.questions) {
-        for (var qi = 0; qi < s.questions.length; qi++) {
-          var q = s.questions[qi];
-          if (q.type === 'textarea') continue;
-          h += '<div style="margin-bottom:16px">';
-          h += '<div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px">' + esc(q.label) + '</div>';
-          var counts = {};
-          for (var ri = 0; ri < reps.length; ri++) {
-            var val = reps[ri][q.id];
-            if (!val) continue;
-            if (Array.isArray(val)) { for (var vi=0;vi<val.length;vi++) counts[val[vi]] = (counts[val[vi]]||0)+1; }
-            else counts[val] = (counts[val]||0)+1;
-          }
-          var total = reps.filter(function(r){return r[q.id];}).length;
-          for (var oi = 0; oi < (q.options||[]).length; oi++) {
-            var opt = q.options[oi];
-            var cnt = counts[opt] || 0;
-            var pct = total > 0 ? Math.round(cnt/total*100) : 0;
-            h += '<div style="margin-bottom:6px">';
-            h += '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>' + esc(opt) + '</span><span style="color:#757575">' + cnt + ' (' + pct + '%)</span></div>';
-            h += '<div style="background:#f0f0f0;border-radius:4px;height:8px"><div style="width:' + pct + '%;height:100%;background:#1976D2;border-radius:4px;transition:width .3s"></div></div>';
-            h += '</div>';
-          }
+      for (var qi2 = 0; qi2 < s.questions.length; qi2++) {
+        var q2 = s.questions[qi2];
+        if (q2.type === 'textarea') continue;
+        h += '<div style="margin-bottom:16px">';
+        h += '<div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px">' + esc(q2.label) + '</div>';
+        var counts = {};
+        var answered = 0;
+        for (var ri = 0; ri < reps.length; ri++) {
+          var val = reps[ri][q2.id];
+          if (!val) continue;
+          answered++;
+          if (Array.isArray(val)) { for (var vi=0;vi<val.length;vi++) counts[val[vi]]=(counts[val[vi]]||0)+1; }
+          else counts[val]=(counts[val]||0)+1;
+        }
+        for (var oi2 = 0; oi2 < (q2.options||[]).length; oi2++) {
+          var opt = q2.options[oi2];
+          var cnt = counts[opt]||0;
+          var pct = answered > 0 ? Math.round(cnt/answered*100) : 0;
+          h += '<div style="margin-bottom:6px">';
+          h += '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>' + esc(opt) + '</span><span style="color:#757575">' + cnt + ' (' + pct + '%)</span></div>';
+          h += '<div style="background:#f0f0f0;border-radius:4px;height:8px"><div style="width:' + pct + '%;height:100%;background:#1976D2;border-radius:4px"></div></div>';
           h += '</div>';
         }
+        h += '</div>';
       }
-      // Commentaires libres
-      var comments = reps.filter(function(r){return r.q14 && r.q14.trim();});
-      if (comments.length > 0) {
-        h += '<div style="margin-top:8px"><div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px">Commentaires libres</div>';
-        for (var ci = 0; ci < comments.length; ci++) {
+      var comments = reps.filter(function(r){ return r.q14 && r.q14.trim(); });
+      if (comments.length) {
+        h += '<div><div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px">Commentaires libres</div>';
+        for (var ci=0;ci<comments.length;ci++) {
           h += '<div style="background:#f9f9f9;border-left:3px solid #1976D2;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#444;margin-bottom:8px">' + esc(comments[ci].q14) + '</div>';
         }
         h += '</div>';
       }
       if (editMode) {
-        h += '<div style="margin-top:12px"><button onclick="if(confirm(\'Supprimer toutes les réponses ?\')){var idx=sondages.findIndex(function(x){return x.id===' + s.id + '});sondages[idx].reponsesList=[];sondages[idx].reponses=0;saveToStorage();renderTab()}" style="font-size:12px;color:#D32F2F;background:#ffebee;border:1px solid #D32F2F;border-radius:6px;padding:6px 12px;cursor:pointer;font-family:inherit">🗑 Réinitialiser les réponses</button></div>';
+        h += '<button onclick="var idx=sondages.findIndex(function(x){return x.id===' + s.id + '});sondages[idx].reponsesList=[];sondages[idx].reponses=0;saveToStorage();renderTab()" style="font-size:12px;color:#D32F2F;background:#ffebee;border:1px solid #D32F2F;border-radius:6px;padding:6px 12px;cursor:pointer;font-family:inherit;margin-top:8px">🗑 Réinitialiser les réponses</button>';
       }
       h += '</div>';
     }
-
     h += '</div>';
   }
 
-  if (sondages.length === 0) {
-    h += '<div style="text-align:center;padding:40px;color:#9e9e9e">Aucun sondage pour le moment.</div>';
-  }
+  if (!sondages.length) h += '<div style="text-align:center;padding:40px;color:#9e9e9e">Aucun sondage pour le moment.</div>';
   return h;
 }
 function renderTab() {
